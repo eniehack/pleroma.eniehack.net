@@ -6,7 +6,7 @@
   "logoMargin": ".1em",
   "redirectRootNoLogin": "/main/all",
   "redirectRootLogin": "/main/friends",
-  "showInstanceSpecificPanel": false,
+  "showInstanceSpecificPanel": true,
   "collapseMessageWithSubject": false,
   "scopeCopy": true,
   "subjectLineBehavior": "email",
