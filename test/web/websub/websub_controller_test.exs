@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2018 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Websub.WebsubControllerTest do
@@ -8,6 +8,10 @@ defmodule Pleroma.Web.Websub.WebsubControllerTest do
   alias Pleroma.Repo
   alias Pleroma.Web.Websub
   alias Pleroma.Web.Websub.WebsubClientSubscription
+
+  clear_config_all([:instance, :federating]) do
+    Pleroma.Config.put([:instance, :federating], true)
+  end
 
   test "websub subscription request", %{conn: conn} do
     user = insert(:user)

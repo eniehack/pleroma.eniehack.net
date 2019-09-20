@@ -1,9 +1,14 @@
+# Pleroma: A lightweight social networking server
+# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule Pleroma.Web.ActivityPub.UserViewTest do
   use Pleroma.DataCase
   import Pleroma.Factory
 
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.UserView
+  alias Pleroma.Web.CommonAPI
 
   test "Renders a user, including the public key" do
     user = insert(:user)
@@ -15,6 +20,21 @@ defmodule Pleroma.Web.ActivityPub.UserViewTest do
     assert result["preferredUsername"] == user.nickname
 
     assert String.contains?(result["publicKey"]["publicKeyPem"], "BEGIN PUBLIC KEY")
+  end
+
+  test "Renders profile fields" do
+    fields = [
+      %{"name" => "foo", "value" => "bar"}
+    ]
+
+    {:ok, user} =
+      insert(:user)
+      |> User.upgrade_changeset(%{info: %{fields: fields}})
+      |> User.update_and_set_cache()
+
+    assert %{
+             "attachment" => [%{"name" => "foo", "type" => "PropertyValue", "value" => "bar"}]
+           } = UserView.render("user.json", %{user: user})
   end
 
   test "Does not add an avatar image if the user hasn't set one" do
@@ -77,5 +97,72 @@ defmodule Pleroma.Web.ActivityPub.UserViewTest do
       refute result["endpoints"]["oauthRegistrationEndpoint"]
       refute result["endpoints"]["oauthTokenEndpoint"]
     end
+  end
+
+  describe "followers" do
+    test "sets totalItems to zero when followers are hidden" do
+      user = insert(:user)
+      other_user = insert(:user)
+      {:ok, _other_user, user, _activity} = CommonAPI.follow(other_user, user)
+      assert %{"totalItems" => 1} = UserView.render("followers.json", %{user: user})
+      info = Map.merge(user.info, %{hide_followers_count: true, hide_followers: true})
+      user = Map.put(user, :info, info)
+      assert %{"totalItems" => 0} = UserView.render("followers.json", %{user: user})
+    end
+
+    test "sets correct totalItems when followers are hidden but the follower counter is not" do
+      user = insert(:user)
+      other_user = insert(:user)
+      {:ok, _other_user, user, _activity} = CommonAPI.follow(other_user, user)
+      assert %{"totalItems" => 1} = UserView.render("followers.json", %{user: user})
+      info = Map.merge(user.info, %{hide_followers_count: false, hide_followers: true})
+      user = Map.put(user, :info, info)
+      assert %{"totalItems" => 1} = UserView.render("followers.json", %{user: user})
+    end
+  end
+
+  describe "following" do
+    test "sets totalItems to zero when follows are hidden" do
+      user = insert(:user)
+      other_user = insert(:user)
+      {:ok, user, _other_user, _activity} = CommonAPI.follow(user, other_user)
+      assert %{"totalItems" => 1} = UserView.render("following.json", %{user: user})
+      info = Map.merge(user.info, %{hide_follows_count: true, hide_follows: true})
+      user = Map.put(user, :info, info)
+      assert %{"totalItems" => 0} = UserView.render("following.json", %{user: user})
+    end
+
+    test "sets correct totalItems when follows are hidden but the follow counter is not" do
+      user = insert(:user)
+      other_user = insert(:user)
+      {:ok, user, _other_user, _activity} = CommonAPI.follow(user, other_user)
+      assert %{"totalItems" => 1} = UserView.render("following.json", %{user: user})
+      info = Map.merge(user.info, %{hide_follows_count: false, hide_follows: true})
+      user = Map.put(user, :info, info)
+      assert %{"totalItems" => 1} = UserView.render("following.json", %{user: user})
+    end
+  end
+
+  test "outbox paginates correctly" do
+    user = insert(:user)
+
+    posts =
+      for i <- 0..25 do
+        {:ok, activity} = CommonAPI.post(user, %{"status" => "post #{i}"})
+        activity
+      end
+
+    # outbox sorts chronologically, newest first, with ten per page
+    posts = Enum.reverse(posts)
+
+    %{"first" => %{"next" => next_url}} =
+      UserView.render("outbox.json", %{user: user, max_id: nil})
+
+    next_id = Enum.at(posts, 9).id
+    assert next_url =~ next_id
+
+    %{"next" => next_url} = UserView.render("outbox.json", %{user: user, max_id: next_id})
+    next_id = Enum.at(posts, 19).id
+    assert next_url =~ next_id
   end
 end

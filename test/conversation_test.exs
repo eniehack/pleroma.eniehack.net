@@ -11,12 +11,18 @@ defmodule Pleroma.ConversationTest do
 
   import Pleroma.Factory
 
+  clear_config_all([:instance, :federating]) do
+    Pleroma.Config.put([:instance, :federating], true)
+  end
+
   test "it goes through old direct conversations" do
     user = insert(:user)
     other_user = insert(:user)
 
     {:ok, _activity} =
       CommonAPI.post(user, %{"visibility" => "direct", "status" => "hey @#{other_user.nickname}"})
+
+    Pleroma.Tests.ObanHelpers.perform_all()
 
     Repo.delete_all(Conversation)
     Repo.delete_all(Conversation.Participation)

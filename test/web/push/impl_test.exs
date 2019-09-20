@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2018 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Push.ImplTest do
@@ -124,8 +124,7 @@ defmodule Pleroma.Web.Push.ImplTest do
     {:ok, _, _, activity} = CommonAPI.follow(user, other_user)
     object = Object.normalize(activity)
 
-    assert Impl.format_body(%{activity: activity}, user, object) ==
-             "@Bob has followed you"
+    assert Impl.format_body(%{activity: activity}, user, object) == "@Bob has followed you"
   end
 
   test "renders body for announce activity" do
@@ -156,7 +155,6 @@ defmodule Pleroma.Web.Push.ImplTest do
     {:ok, activity, _} = CommonAPI.favorite(activity.id, user)
     object = Object.normalize(activity)
 
-    assert Impl.format_body(%{activity: activity}, user, object) ==
-             "@Bob has favorited your post"
+    assert Impl.format_body(%{activity: activity}, user, object) == "@Bob has favorited your post"
   end
 end

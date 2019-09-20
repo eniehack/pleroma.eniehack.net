@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2018 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Mix.Tasks.Pleroma.User do
@@ -61,6 +61,10 @@ defmodule Mix.Tasks.Pleroma.User do
   ## Unsubscribe local users from user's account and deactivate it
 
       mix pleroma.user unsubscribe NICKNAME
+
+  ## Unsubscribe local users from an entire instance and deactivate all accounts
+
+      mix pleroma.user unsubscribe_all_from_instance INSTANCE
 
   ## Create a password reset link.
 
@@ -244,6 +248,20 @@ defmodule Mix.Tasks.Pleroma.User do
       _ ->
         shell_error("No user #{nickname}")
     end
+  end
+
+  def run(["unsubscribe_all_from_instance", instance]) do
+    start_pleroma()
+
+    Pleroma.User.Query.build(%{nickname: "@#{instance}"})
+    |> Pleroma.RepoStreamer.chunk_stream(500)
+    |> Stream.each(fn users ->
+      users
+      |> Enum.each(fn user ->
+        run(["unsubscribe", user.nickname])
+      end)
+    end)
+    |> Stream.run()
   end
 
   def run(["set", nickname | rest]) do

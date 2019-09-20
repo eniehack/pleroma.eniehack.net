@@ -1,3 +1,7 @@
+# Pleroma: A lightweight social networking server
+# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule Pleroma.Instances.Instance do
   @moduledoc "Instance."
 
@@ -86,7 +90,7 @@ defmodule Pleroma.Instances.Instance do
   def set_unreachable(url_or_host, unreachable_since \\ nil)
 
   def set_unreachable(url_or_host, unreachable_since) when is_binary(url_or_host) do
-    unreachable_since = unreachable_since || DateTime.utc_now()
+    unreachable_since = parse_datetime(unreachable_since) || NaiveDateTime.utc_now()
     host = host(url_or_host)
     existing_record = Repo.get_by(Instance, %{host: host})
 
@@ -110,4 +114,10 @@ defmodule Pleroma.Instances.Instance do
   end
 
   def set_unreachable(_, _), do: {:error, nil}
+
+  defp parse_datetime(datetime) when is_binary(datetime) do
+    NaiveDateTime.from_iso8601(datetime)
+  end
+
+  defp parse_datetime(datetime), do: datetime
 end

@@ -33,4 +33,39 @@ defmodule Pleroma.Web.ControllerHelper do
   end
 
   defp param_to_integer(_, default), do: default
+
+  def add_link_headers(conn, activities, extra_params \\ %{}) do
+    case List.last(activities) do
+      %{id: max_id} ->
+        params =
+          conn.params
+          |> Map.drop(Map.keys(conn.path_params))
+          |> Map.drop(["since_id", "max_id", "min_id"])
+          |> Map.merge(extra_params)
+
+        limit =
+          params
+          |> Map.get("limit", "20")
+          |> String.to_integer()
+
+        min_id =
+          if length(activities) <= limit do
+            activities
+            |> List.first()
+            |> Map.get(:id)
+          else
+            activities
+            |> Enum.at(limit * -1)
+            |> Map.get(:id)
+          end
+
+        next_url = current_url(conn, Map.merge(params, %{max_id: max_id}))
+        prev_url = current_url(conn, Map.merge(params, %{min_id: min_id}))
+
+        put_resp_header(conn, "link", "<#{next_url}>; rel=\"next\", <#{prev_url}>; rel=\"prev\"")
+
+      _ ->
+        conn
+    end
+  end
 end

@@ -123,11 +123,26 @@ defmodule Pleroma.Web.Salmon do
     {:ok, salmon}
   end
 
-  def remote_users(%{data: %{"to" => to} = data}) do
-    to = to ++ (data["cc"] || [])
+  def remote_users(%User{id: user_id}, %{data: %{"to" => to} = data}) do
+    cc = Map.get(data, "cc", [])
 
-    to
-    |> Enum.map(fn id -> User.get_cached_by_ap_id(id) end)
+    bcc =
+      data
+      |> Map.get("bcc", [])
+      |> Enum.reduce([], fn ap_id, bcc ->
+        case Pleroma.List.get_by_ap_id(ap_id) do
+          %Pleroma.List{user_id: ^user_id} = list ->
+            {:ok, following} = Pleroma.List.get_following(list)
+            bcc ++ Enum.map(following, & &1.ap_id)
+
+          _ ->
+            bcc
+        end
+      end)
+
+    [to, cc, bcc]
+    |> Enum.concat()
+    |> Enum.map(&User.get_cached_by_ap_id/1)
     |> Enum.filter(fn user -> user && !user.local end)
   end
 
@@ -153,6 +168,15 @@ defmodule Pleroma.Web.Salmon do
         Logger.debug(fn -> "Pushing Salmon to #{url} failed, #{inspect(e)}" end)
         {:error, "Unreachable instance"}
     end
+  end
+
+  def publish_one(%{recipient_id: recipient_id} = params) do
+    recipient = User.get_cached_by_id(recipient_id)
+
+    params
+    |> Map.delete(:recipient_id)
+    |> Map.put(:recipient, recipient)
+    |> publish_one()
   end
 
   def publish_one(_), do: :noop
@@ -191,7 +215,7 @@ defmodule Pleroma.Web.Salmon do
       {:ok, private, _} = Keys.keys_from_pem(keys)
       {:ok, feed} = encode(private, feed)
 
-      remote_users = remote_users(activity)
+      remote_users = remote_users(user, activity)
 
       salmon_urls = Enum.map(remote_users, & &1.info.salmon)
       reachable_urls_metadata = Instances.filter_reachable(salmon_urls)
@@ -203,7 +227,7 @@ defmodule Pleroma.Web.Salmon do
         Logger.debug(fn -> "Sending Salmon to #{remote_user.ap_id}" end)
 
         Publisher.enqueue_one(__MODULE__, %{
-          recipient: remote_user,
+          recipient_id: remote_user.id,
           feed: feed,
           unreachable_since: reachable_urls_metadata[remote_user.info.salmon]
         })
