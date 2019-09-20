@@ -1008,17 +1008,6 @@ defmodule Pleroma.User do
   def mutes?(nil, _), do: false
   def mutes?(user, %{ap_id: ap_id}), do: Enum.member?(user.info.mutes, ap_id)
 
-<<<<<<< HEAD
-  def blocks?(%User{info: info} = _user, %{ap_id: ap_id}) do
-    blocks = info.blocks
-
-    domain_blocks = Pleroma.Web.ActivityPub.MRF.subdomains_regex(info.domain_blocks)
-
-    %{host: host} = URI.parse(ap_id)
-
-    Enum.member?(blocks, ap_id) ||
-      Pleroma.Web.ActivityPub.MRF.subdomain_match?(domain_blocks, host)
-=======
   @spec muted_notifications?(User.t() | nil, User.t() | map()) :: boolean()
   def muted_notifications?(nil, _), do: false
 
@@ -1027,7 +1016,6 @@ defmodule Pleroma.User do
 
   def blocks?(%User{} = user, %User{} = target) do
     blocks_ap_id?(user, target) || blocks_domain?(user, target)
->>>>>>> 472e7b796cfeb1445ee1572df414531655b050ce
   end
 
   def blocks?(nil, _), do: false
