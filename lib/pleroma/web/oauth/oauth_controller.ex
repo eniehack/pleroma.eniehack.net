@@ -24,6 +24,7 @@ defmodule Pleroma.Web.OAuth.OAuthController do
 
   plug(:fetch_session)
   plug(:fetch_flash)
+  plug(Pleroma.Plugs.RateLimiter, :authentication when action == :create_authorization)
 
   action_fallback(Pleroma.Web.OAuth.FallbackController)
 
@@ -212,13 +213,31 @@ defmodule Pleroma.Web.OAuth.OAuthController do
       {:auth_active, false} ->
         # Per https://github.com/tootsuite/mastodon/blob/
         #   51e154f5e87968d6bb115e053689767ab33e80cd/app/controllers/api/base_controller.rb#L76
-        render_error(conn, :forbidden, "Your login is missing a confirmed e-mail address")
+        render_error(
+          conn,
+          :forbidden,
+          "Your login is missing a confirmed e-mail address",
+          %{},
+          "missing_confirmed_email"
+        )
 
       {:user_active, false} ->
-        render_error(conn, :forbidden, "Your account is currently disabled")
+        render_error(
+          conn,
+          :forbidden,
+          "Your account is currently disabled",
+          %{},
+          "account_is_disabled"
+        )
 
       {:password_reset_pending, true} ->
-        render_error(conn, :forbidden, "Password reset is required")
+        render_error(
+          conn,
+          :forbidden,
+          "Password reset is required",
+          %{},
+          "password_reset_required"
+        )
 
       _error ->
         render_invalid_credentials_error(conn)
@@ -442,7 +461,7 @@ defmodule Pleroma.Web.OAuth.OAuthController do
   end
 
   # Special case: Local MastodonFE
-  defp redirect_uri(%Plug.Conn{} = conn, "."), do: mastodon_api_url(conn, :login)
+  defp redirect_uri(%Plug.Conn{} = conn, "."), do: auth_url(conn, :login)
 
   defp redirect_uri(%Plug.Conn{}, redirect_uri), do: redirect_uri
 
@@ -456,7 +475,7 @@ defmodule Pleroma.Web.OAuth.OAuthController do
   defp validate_scopes(app, params) do
     params
     |> Scopes.fetch_scopes(app.scopes)
-    |> Scopes.validates(app.scopes)
+    |> Scopes.validate(app.scopes)
   end
 
   def default_redirect_uri(%App{} = app) do

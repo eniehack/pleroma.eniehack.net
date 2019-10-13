@@ -2290,7 +2290,8 @@ config :pleroma, :config_description, [
     group: :pleroma,
     key: :rate_limit,
     type: :group,
-    description: "Rate limit settings. This is an advanced feature and disabled by default.",
+    description:
+      "Rate limit settings. This is an advanced feature enabled only for :authentication by default.",
     children: [
       %{
         key: :search,
@@ -2329,6 +2330,12 @@ config :pleroma, :config_description, [
         description:
           "for fav / unfav or reblog / unreblog actions on the same status by the same user",
         suggestions: [{1000, 10}, [{10_000, 10}, {10_000, 50}]]
+      },
+      %{
+        key: :authentication,
+        type: [:tuple, {:list, :tuple}],
+        description: "for authentication create / password check / user existence check requests",
+        suggestions: [{60_000, 15}]
       }
     ]
   },
@@ -2684,6 +2691,42 @@ config :pleroma, :config_description, [
         key: :headers,
         type: {:list, :string},
         suggestions: [["Authorization", "Content-Type", "Idempotency-Key"]]
+      }
+    ]
+  },
+  %{
+    group: :pleroma,
+    key: Pleroma.Plugs.RemoteIp,
+    type: :group,
+    description: """
+    **If your instance is not behind at least one reverse proxy, you should not enable this plug.**
+
+    `Pleroma.Plugs.RemoteIp` is a shim to call [`RemoteIp`](https://git.pleroma.social/pleroma/remote_ip) but with runtime configuration.
+    """,
+    children: [
+      %{
+        key: :enabled,
+        type: :boolean,
+        description: "Enable/disable the plug. Defaults to `false`.",
+        suggestions: [true, false]
+      },
+      %{
+        key: :headers,
+        type: {:list, :string},
+        description:
+          "A list of strings naming the `req_headers` to use when deriving the `remote_ip`. Order does not matter. Defaults to `~w[forwarded x-forwarded-for x-client-ip x-real-ip]`."
+      },
+      %{
+        key: :proxies,
+        type: {:list, :string},
+        description:
+          "A list of strings in [CIDR](https://en.wikipedia.org/wiki/CIDR) notation specifying the IPs of known proxies. Defaults to `[]`."
+      },
+      %{
+        key: :reserved,
+        type: {:list, :string},
+        description:
+          "Defaults to [localhost](https://en.wikipedia.org/wiki/Localhost) and [private network](https://en.wikipedia.org/wiki/Private_network)."
       }
     ]
   },

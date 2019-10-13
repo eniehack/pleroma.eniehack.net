@@ -22,9 +22,10 @@ defmodule Pleroma.Web.ActivityPub.UserView do
   def render("endpoints.json", %{user: %User{local: true} = _user}) do
     %{
       "oauthAuthorizationEndpoint" => Helpers.o_auth_url(Endpoint, :authorize),
-      "oauthRegistrationEndpoint" => Helpers.mastodon_api_url(Endpoint, :create_app),
+      "oauthRegistrationEndpoint" => Helpers.app_url(Endpoint, :create),
       "oauthTokenEndpoint" => Helpers.o_auth_url(Endpoint, :token_exchange),
-      "sharedInbox" => Helpers.activity_pub_url(Endpoint, :inbox)
+      "sharedInbox" => Helpers.activity_pub_url(Endpoint, :inbox),
+      "uploadMedia" => Helpers.activity_pub_url(Endpoint, :upload_media)
     }
   end
 
@@ -32,7 +33,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
 
   def render("service.json", %{user: user}) do
     {:ok, user} = User.ensure_keys_present(user)
-    {:ok, _, public_key} = Keys.keys_from_pem(user.info.keys)
+    {:ok, _, public_key} = Keys.keys_from_pem(user.keys)
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
 
@@ -68,7 +69,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
 
   def render("user.json", %{user: user}) do
     {:ok, user} = User.ensure_keys_present(user)
-    {:ok, _, public_key} = Keys.keys_from_pem(user.info.keys)
+    {:ok, _, public_key} = Keys.keys_from_pem(user.keys)
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
 

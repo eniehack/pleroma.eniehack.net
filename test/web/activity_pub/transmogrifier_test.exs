@@ -186,6 +186,35 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
              end)
     end
 
+    test "it works for incoming listens" do
+      data = %{
+        "@context" => "https://www.w3.org/ns/activitystreams",
+        "to" => ["https://www.w3.org/ns/activitystreams#Public"],
+        "cc" => [],
+        "type" => "Listen",
+        "id" => "http://mastodon.example.org/users/admin/listens/1234/activity",
+        "actor" => "http://mastodon.example.org/users/admin",
+        "object" => %{
+          "type" => "Audio",
+          "id" => "http://mastodon.example.org/users/admin/listens/1234",
+          "attributedTo" => "http://mastodon.example.org/users/admin",
+          "title" => "lain radio episode 1",
+          "artist" => "lain",
+          "album" => "lain radio",
+          "length" => 180_000
+        }
+      }
+
+      {:ok, %Activity{local: false} = activity} = Transmogrifier.handle_incoming(data)
+
+      object = Object.normalize(activity)
+
+      assert object.data["title"] == "lain radio episode 1"
+      assert object.data["artist"] == "lain"
+      assert object.data["album"] == "lain radio"
+      assert object.data["length"] == 180_000
+    end
+
     test "it rewrites Note votes to Answers and increments vote counters on question activities" do
       user = insert(:user)
 
@@ -358,6 +387,31 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
       assert data["object"]["id"] == "http://mastodon.example.org/users/admin#likes/2"
     end
 
+    test "it works for incoming unlikes with an existing like activity and a compact object" do
+      user = insert(:user)
+      {:ok, activity} = CommonAPI.post(user, %{"status" => "leave a like pls"})
+
+      like_data =
+        File.read!("test/fixtures/mastodon-like.json")
+        |> Poison.decode!()
+        |> Map.put("object", activity.data["object"])
+
+      {:ok, %Activity{data: like_data, local: false}} = Transmogrifier.handle_incoming(like_data)
+
+      data =
+        File.read!("test/fixtures/mastodon-undo-like.json")
+        |> Poison.decode!()
+        |> Map.put("object", like_data["id"])
+        |> Map.put("actor", like_data["actor"])
+
+      {:ok, %Activity{data: data, local: false}} = Transmogrifier.handle_incoming(data)
+
+      assert data["actor"] == "http://mastodon.example.org/users/admin"
+      assert data["type"] == "Undo"
+      assert data["id"] == "http://mastodon.example.org/users/admin#likes/2/undo"
+      assert data["object"]["id"] == "http://mastodon.example.org/users/admin#likes/2"
+    end
+
     test "it works for incoming announces" do
       data = File.read!("test/fixtures/mastodon-announce.json") |> Poison.decode!()
 
@@ -395,6 +449,33 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
       assert data["object"] == activity.data["object"]
 
       assert Activity.get_create_by_object_ap_id(data["object"]).id == activity.id
+    end
+
+    test "it works for incoming announces with an inlined activity" do
+      data =
+        File.read!("test/fixtures/mastodon-announce-private.json")
+        |> Poison.decode!()
+
+      {:ok, %Activity{data: data, local: false}} = Transmogrifier.handle_incoming(data)
+
+      assert data["actor"] == "http://mastodon.example.org/users/admin"
+      assert data["type"] == "Announce"
+
+      assert data["id"] ==
+               "http://mastodon.example.org/users/admin/statuses/99542391527669785/activity"
+
+      object = Object.normalize(data["object"])
+
+      assert object.data["id"] == "http://mastodon.example.org/@admin/99541947525187368"
+      assert object.data["content"] == "this is a private toot"
+    end
+
+    test "it rejects incoming announces with an inlined activity from another origin" do
+      data =
+        File.read!("test/fixtures/bogus-mastodon-announce.json")
+        |> Poison.decode!()
+
+      assert :error = Transmogrifier.handle_incoming(data)
     end
 
     test "it does not clobber the addressing on announce activities" do
@@ -500,6 +581,8 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
         |> Map.put("object", object)
 
       {:ok, %Activity{data: data, local: false}} = Transmogrifier.handle_incoming(update_data)
+
+      assert data["id"] == update_data["id"]
 
       user = User.get_cached_by_ap_id(data["actor"])
       assert user.name == "gargle"
@@ -608,6 +691,7 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
 
     test "it works for incoming deletes" do
       activity = insert(:note_activity)
+      deleting_user = insert(:user)
 
       data =
         File.read!("test/fixtures/mastodon-delete.json")
@@ -620,11 +704,14 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
       data =
         data
         |> Map.put("object", object)
-        |> Map.put("actor", activity.data["actor"])
+        |> Map.put("actor", deleting_user.ap_id)
 
-      {:ok, %Activity{local: false}} = Transmogrifier.handle_incoming(data)
+      {:ok, %Activity{actor: actor, local: false, data: %{"id" => id}}} =
+        Transmogrifier.handle_incoming(data)
 
+      assert id == data["id"]
       refute Activity.get_by_id(activity.id)
+      assert actor == deleting_user.ap_id
     end
 
     test "it fails for incoming deletes with spoofed origin" do
@@ -831,6 +918,8 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
 
       assert activity.data["object"] == follow_activity.data["id"]
 
+      assert activity.data["id"] == accept_data["id"]
+
       follower = User.get_cached_by_id(follower.id)
 
       assert User.following?(follower, followed) == true
@@ -935,6 +1024,7 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
 
       {:ok, activity} = Transmogrifier.handle_incoming(reject_data)
       refute activity.local
+      assert activity.data["id"] == reject_data["id"]
 
       follower = User.get_cached_by_id(follower.id)
 
@@ -1031,6 +1121,19 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
   end
 
   describe "prepare outgoing" do
+    test "it inlines private announced objects" do
+      user = insert(:user)
+
+      {:ok, activity} = CommonAPI.post(user, %{"status" => "hey", "visibility" => "private"})
+
+      {:ok, announce_activity, _} = CommonAPI.repeat(activity.id, user)
+
+      {:ok, modified} = Transmogrifier.prepare_outgoing(announce_activity.data)
+
+      assert modified["object"]["content"] == "hey"
+      assert modified["object"]["actor"] == modified["object"]["attributedTo"]
+    end
+
     test "it turns mentions into tags" do
       user = insert(:user)
       other_user = insert(:user)
@@ -1198,6 +1301,20 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
       {:ok, modified} = Transmogrifier.prepare_outgoing(activity.data)
 
       assert is_nil(modified["bcc"])
+    end
+
+    test "it can handle Listen activities" do
+      listen_activity = insert(:listen)
+
+      {:ok, modified} = Transmogrifier.prepare_outgoing(listen_activity.data)
+
+      assert modified["type"] == "Listen"
+
+      user = insert(:user)
+
+      {:ok, activity} = CommonAPI.listen(user, %{"title" => "lain radio episode 1"})
+
+      {:ok, _modified} = Transmogrifier.prepare_outgoing(activity.data)
     end
   end
 

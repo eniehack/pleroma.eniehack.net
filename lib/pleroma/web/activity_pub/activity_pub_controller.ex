@@ -82,38 +82,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     conn
   end
 
-  def object_likes(conn, %{"uuid" => uuid, "page" => page}) do
-    with ap_id <- o_status_url(conn, :object, uuid),
-         %Object{} = object <- Object.get_cached_by_ap_id(ap_id),
-         {_, true} <- {:public?, Visibility.is_public?(object)},
-         likes <- Utils.get_object_likes(object) do
-      {page, _} = Integer.parse(page)
-
-      conn
-      |> put_resp_content_type("application/activity+json")
-      |> put_view(ObjectView)
-      |> render("likes.json", %{ap_id: ap_id, likes: likes, page: page})
-    else
-      {:public?, false} ->
-        {:error, :not_found}
-    end
-  end
-
-  def object_likes(conn, %{"uuid" => uuid}) do
-    with ap_id <- o_status_url(conn, :object, uuid),
-         %Object{} = object <- Object.get_cached_by_ap_id(ap_id),
-         {_, true} <- {:public?, Visibility.is_public?(object)},
-         likes <- Utils.get_object_likes(object) do
-      conn
-      |> put_resp_content_type("application/activity+json")
-      |> put_view(ObjectView)
-      |> render("likes.json", %{ap_id: ap_id, likes: likes})
-    else
-      {:public?, false} ->
-        {:error, :not_found}
-    end
-  end
-
   def activity(conn, %{"uuid" => uuid}) do
     with ap_id <- o_status_url(conn, :activity, uuid),
          %Activity{} = activity <- Activity.normalize(ap_id),
@@ -334,6 +302,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     |> represent_service_actor(conn)
   end
 
+  @doc "Returns the authenticated user's ActivityPub User object or a 404 Not Found if non-authenticated"
   def whoami(%{assigns: %{user: %User{} = user}} = conn, _params) do
     conn
     |> put_resp_content_type("application/activity+json")
@@ -508,5 +477,32 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
       end
 
     {new_user, for_user}
+  end
+
+  # TODO: Add support for "object" field
+  @doc """
+  Endpoint based on <https://www.w3.org/wiki/SocialCG/ActivityPub/MediaUpload>
+
+  Parameters:
+  - (required) `file`: data of the media
+  - (optionnal) `description`: description of the media, intended for accessibility
+
+  Response:
+  - HTTP Code: 201 Created
+  - HTTP Body: ActivityPub object to be inserted into another's `attachment` field
+  """
+  def upload_media(%{assigns: %{user: user}} = conn, %{"file" => file} = data) do
+    with {:ok, object} <-
+           ActivityPub.upload(
+             file,
+             actor: User.ap_id(user),
+             description: Map.get(data, "description")
+           ) do
+      Logger.debug(inspect(object))
+
+      conn
+      |> put_status(:created)
+      |> json(object.data)
+    end
   end
 end
