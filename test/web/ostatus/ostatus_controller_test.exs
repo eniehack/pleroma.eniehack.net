@@ -5,13 +5,11 @@
 defmodule Pleroma.Web.OStatus.OStatusControllerTest do
   use Pleroma.Web.ConnCase
 
-  import ExUnit.CaptureLog
   import Pleroma.Factory
 
   alias Pleroma.Object
   alias Pleroma.User
   alias Pleroma.Web.CommonAPI
-  alias Pleroma.Web.OStatus.ActivityRepresenter
 
   setup_all do
     Tesla.Mock.mock_global(fn env -> apply(HttpRequestMock, :request, [env]) end)
@@ -22,78 +20,7 @@ defmodule Pleroma.Web.OStatus.OStatusControllerTest do
     Pleroma.Config.put([:instance, :federating], true)
   end
 
-  describe "salmon_incoming" do
-    test "decodes a salmon", %{conn: conn} do
-      user = insert(:user)
-      salmon = File.read!("test/fixtures/salmon.xml")
-
-      assert capture_log(fn ->
-               conn =
-                 conn
-                 |> put_req_header("content-type", "application/atom+xml")
-                 |> post("/users/#{user.nickname}/salmon", salmon)
-
-               assert response(conn, 200)
-             end) =~ "[error]"
-    end
-
-    test "decodes a salmon with a changed magic key", %{conn: conn} do
-      user = insert(:user)
-      salmon = File.read!("test/fixtures/salmon.xml")
-
-      assert capture_log(fn ->
-               conn =
-                 conn
-                 |> put_req_header("content-type", "application/atom+xml")
-                 |> post("/users/#{user.nickname}/salmon", salmon)
-
-               assert response(conn, 200)
-             end) =~ "[error]"
-
-      # Wrong key
-      info = %{
-        magic_key:
-          "RSA.pu0s-halox4tu7wmES1FVSx6u-4wc0YrUFXcqWXZG4-27UmbCOpMQftRCldNRfyA-qLbz-eqiwrong1EwUvjsD4cYbAHNGHwTvDOyx5AKthQUP44ykPv7kjKGh3DWKySJvcs9tlUG87hlo7AvnMo9pwRS_Zz2CacQ-MKaXyDepk=.AQAB"
-      }
-
-      # Set a wrong magic-key for a user so it has to refetch
-      "http://gs.example.org:4040/index.php/user/1"
-      |> User.get_cached_by_ap_id()
-      |> User.update_info(&User.Info.remote_user_creation(&1, info))
-
-      assert capture_log(fn ->
-               conn =
-                 build_conn()
-                 |> put_req_header("content-type", "application/atom+xml")
-                 |> post("/users/#{user.nickname}/salmon", salmon)
-
-               assert response(conn, 200)
-             end) =~ "[error]"
-    end
-  end
-
   describe "GET object/2" do
-    test "gets an object", %{conn: conn} do
-      note_activity = insert(:note_activity)
-      object = Object.normalize(note_activity)
-      user = User.get_cached_by_ap_id(note_activity.data["actor"])
-      [_, uuid] = hd(Regex.scan(~r/.+\/([\w-]+)$/, object.data["id"]))
-      url = "/objects/#{uuid}"
-
-      conn =
-        conn
-        |> put_req_header("accept", "application/xml")
-        |> get(url)
-
-      expected =
-        ActivityRepresenter.to_simple_form(note_activity, user, true)
-        |> ActivityRepresenter.wrap_with_entry()
-        |> :xmerl.export_simple(:xmerl_xml)
-        |> to_string
-
-      assert response(conn, 200) == expected
-    end
-
     test "redirects to /notice/id for html format", %{conn: conn} do
       note_activity = insert(:note_activity)
       object = Object.normalize(note_activity)
@@ -106,23 +33,6 @@ defmodule Pleroma.Web.OStatus.OStatusControllerTest do
         |> get(url)
 
       assert redirected_to(conn) == "/notice/#{note_activity.id}"
-    end
-
-    test "500s when user not found", %{conn: conn} do
-      note_activity = insert(:note_activity)
-      object = Object.normalize(note_activity)
-      user = User.get_cached_by_ap_id(note_activity.data["actor"])
-      User.invalidate_cache(user)
-      Pleroma.Repo.delete(user)
-      [_, uuid] = hd(Regex.scan(~r/.+\/([\w-]+)$/, object.data["id"]))
-      url = "/objects/#{uuid}"
-
-      conn =
-        conn
-        |> put_req_header("accept", "application/xml")
-        |> get(url)
-
-      assert response(conn, 500) == ~S({"error":"Something went wrong"})
     end
 
     test "404s on private objects", %{conn: conn} do
@@ -143,16 +53,6 @@ defmodule Pleroma.Web.OStatus.OStatusControllerTest do
   end
 
   describe "GET activity/2" do
-    test "gets an activity in xml format", %{conn: conn} do
-      note_activity = insert(:note_activity)
-      [_, uuid] = hd(Regex.scan(~r/.+\/([\w-]+)$/, note_activity.data["id"]))
-
-      conn
-      |> put_req_header("accept", "application/xml")
-      |> get("/activities/#{uuid}")
-      |> response(200)
-    end
-
     test "redirects to /notice/id for html format", %{conn: conn} do
       note_activity = insert(:note_activity)
       [_, uuid] = hd(Regex.scan(~r/.+\/([\w-]+)$/, note_activity.data["id"]))
@@ -163,39 +63,6 @@ defmodule Pleroma.Web.OStatus.OStatusControllerTest do
         |> get("/activities/#{uuid}")
 
       assert redirected_to(conn) == "/notice/#{note_activity.id}"
-    end
-
-    test "505s when user not found", %{conn: conn} do
-      note_activity = insert(:note_activity)
-      [_, uuid] = hd(Regex.scan(~r/.+\/([\w-]+)$/, note_activity.data["id"]))
-      user = User.get_cached_by_ap_id(note_activity.data["actor"])
-      User.invalidate_cache(user)
-      Pleroma.Repo.delete(user)
-
-      conn =
-        conn
-        |> put_req_header("accept", "text/html")
-        |> get("/activities/#{uuid}")
-
-      assert response(conn, 500) == ~S({"error":"Something went wrong"})
-    end
-
-    test "404s on deleted objects", %{conn: conn} do
-      note_activity = insert(:note_activity)
-      object = Object.normalize(note_activity)
-      [_, uuid] = hd(Regex.scan(~r/.+\/([\w-]+)$/, object.data["id"]))
-
-      conn
-      |> put_req_header("accept", "application/xml")
-      |> get("/objects/#{uuid}")
-      |> response(200)
-
-      Object.delete(object)
-
-      conn
-      |> put_req_header("accept", "application/xml")
-      |> get("/objects/#{uuid}")
-      |> response(404)
     end
 
     test "404s on private activities", %{conn: conn} do
@@ -228,21 +95,28 @@ defmodule Pleroma.Web.OStatus.OStatusControllerTest do
   end
 
   describe "GET notice/2" do
-    test "gets a notice in xml format", %{conn: conn} do
+    test "redirects to a proper object URL when json requested and the object is local", %{
+      conn: conn
+    } do
       note_activity = insert(:note_activity)
+      expected_redirect_url = Object.normalize(note_activity).data["id"]
 
-      conn
-      |> get("/notice/#{note_activity.id}")
-      |> response(200)
+      redirect_url =
+        conn
+        |> put_req_header("accept", "application/activity+json")
+        |> get("/notice/#{note_activity.id}")
+        |> redirected_to()
+
+      assert redirect_url == expected_redirect_url
     end
 
-    test "gets a notice in AS2 format", %{conn: conn} do
-      note_activity = insert(:note_activity)
+    test "returns a 404 on remote notice when json requested", %{conn: conn} do
+      note_activity = insert(:note_activity, local: false)
 
       conn
       |> put_req_header("accept", "application/activity+json")
       |> get("/notice/#{note_activity.id}")
-      |> json_response(200)
+      |> response(404)
     end
 
     test "500s when actor not found", %{conn: conn} do
@@ -256,32 +130,6 @@ defmodule Pleroma.Web.OStatus.OStatusControllerTest do
         |> get("/notice/#{note_activity.id}")
 
       assert response(conn, 500) == ~S({"error":"Something went wrong"})
-    end
-
-    test "only gets a notice in AS2 format for Create messages", %{conn: conn} do
-      note_activity = insert(:note_activity)
-      url = "/notice/#{note_activity.id}"
-
-      conn =
-        conn
-        |> put_req_header("accept", "application/activity+json")
-        |> get(url)
-
-      assert json_response(conn, 200)
-
-      user = insert(:user)
-
-      {:ok, like_activity, _} = CommonAPI.favorite(note_activity.id, user)
-      url = "/notice/#{like_activity.id}"
-
-      assert like_activity.data["type"] == "Like"
-
-      conn =
-        build_conn()
-        |> put_req_header("accept", "application/activity+json")
-        |> get(url)
-
-      assert response(conn, 404)
     end
 
     test "render html for redirect for html format", %{conn: conn} do

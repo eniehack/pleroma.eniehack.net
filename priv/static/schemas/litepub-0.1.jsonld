@@ -19,6 +19,7 @@
             "value": "schema:value",
             "sensitive": "as:sensitive",
             "litepub": "http://litepub.social/ns#",
+            "invisible": "litepub:invisible",
             "directMessage": "litepub:directMessage",
             "listMessage": {
                 "@id": "litepub:listMessage",
@@ -27,7 +28,8 @@
             "oauthRegistrationEndpoint": {
                 "@id": "litepub:oauthRegistrationEndpoint",
                 "@type": "@id"
-            }
+            },
+            "EmojiReaction": "litepub:EmojiReaction"
         }
     ]
 }

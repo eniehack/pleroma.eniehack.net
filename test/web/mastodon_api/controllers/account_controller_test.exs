@@ -8,6 +8,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
   alias Pleroma.Repo
   alias Pleroma.User
   alias Pleroma.Web.ActivityPub.ActivityPub
+  alias Pleroma.Web.ActivityPub.InternalFetchActor
   alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.OAuth.Token
 
@@ -117,6 +118,28 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       acc_three = json_response(resp_three, 200)
       refute acc_one == acc_two
       assert acc_two == acc_three
+    end
+
+    test "returns 404 when user is invisible", %{conn: conn} do
+      user = insert(:user, %{invisible: true})
+
+      resp =
+        conn
+        |> get("/api/v1/accounts/#{user.nickname}")
+        |> json_response(404)
+
+      assert %{"error" => "Can't find user"} = resp
+    end
+
+    test "returns 404 for internal.fetch actor", %{conn: conn} do
+      %User{nickname: "internal.fetch"} = InternalFetchActor.get_actor()
+
+      resp =
+        conn
+        |> get("/api/v1/accounts/internal.fetch")
+        |> json_response(404)
+
+      assert %{"error" => "Can't find user"} = resp
     end
   end
 
@@ -237,6 +260,20 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       assert [%{"id" => id}] = json_response(conn, 200)
       assert id == to_string(post.id)
     end
+
+    test "the user views their own timelines and excludes direct messages", %{conn: conn} do
+      user = insert(:user)
+      {:ok, public_activity} = CommonAPI.post(user, %{"status" => ".", "visibility" => "public"})
+      {:ok, _direct_activity} = CommonAPI.post(user, %{"status" => ".", "visibility" => "direct"})
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> get("/api/v1/accounts/#{user.id}/statuses", %{"exclude_visibilities" => ["direct"]})
+
+      assert [%{"id" => id}] = json_response(conn, 200)
+      assert id == to_string(public_activity.id)
+    end
   end
 
   describe "followers" do
@@ -255,7 +292,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
 
     test "getting followers, hide_followers", %{conn: conn} do
       user = insert(:user)
-      other_user = insert(:user, %{info: %{hide_followers: true}})
+      other_user = insert(:user, hide_followers: true)
       {:ok, _user} = User.follow(user, other_user)
 
       conn =
@@ -267,7 +304,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
 
     test "getting followers, hide_followers, same user requesting", %{conn: conn} do
       user = insert(:user)
-      other_user = insert(:user, %{info: %{hide_followers: true}})
+      other_user = insert(:user, hide_followers: true)
       {:ok, _user} = User.follow(user, other_user)
 
       conn =
@@ -335,7 +372,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
     end
 
     test "getting following, hide_follows", %{conn: conn} do
-      user = insert(:user, %{info: %{hide_follows: true}})
+      user = insert(:user, hide_follows: true)
       other_user = insert(:user)
       {:ok, user} = User.follow(user, other_user)
 
@@ -347,7 +384,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
     end
 
     test "getting following, hide_follows, same user requesting", %{conn: conn} do
-      user = insert(:user, %{info: %{hide_follows: true}})
+      user = insert(:user, hide_follows: true)
       other_user = insert(:user)
       {:ok, user} = User.follow(user, other_user)
 
@@ -457,7 +494,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
 
       conn =
         build_conn()
-        |> assign(:user, follower)
+        |> assign(:user, User.get_cached_by_id(follower.id))
         |> post("/api/v1/accounts/#{followed.id}/follow?reblogs=true")
 
       assert %{"showing_reblogs" => true} = json_response(conn, 200)
@@ -669,7 +706,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
       token_from_db = Repo.preload(token_from_db, :user)
       assert token_from_db.user
 
-      assert token_from_db.user.info.confirmation_pending
+      assert token_from_db.user.confirmation_pending
     end
 
     test "returns error when user already registred", %{conn: conn, valid_params: valid_params} do
@@ -713,7 +750,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
         token_from_db = Repo.preload(token_from_db, :user)
         assert token_from_db.user
 
-        assert token_from_db.user.info.confirmation_pending
+        assert token_from_db.user.confirmation_pending
       end
 
       conn =
@@ -798,7 +835,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
     end
 
     test "verify_credentials default scope unlisted", %{conn: conn} do
-      user = insert(:user, %{info: %User.Info{default_scope: "unlisted"}})
+      user = insert(:user, default_scope: "unlisted")
 
       conn =
         conn
@@ -810,7 +847,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountControllerTest do
     end
 
     test "locked accounts", %{conn: conn} do
-      user = insert(:user, %{info: %User.Info{default_scope: "private"}})
+      user = insert(:user, default_scope: "private")
 
       conn =
         conn

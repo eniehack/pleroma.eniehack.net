@@ -367,6 +367,13 @@ The status posting endpoint takes an additional parameter, `in_reply_to_conversa
     * `recipients`: A list of ids of users that should receive posts to this conversation. This will replace the current list of recipients, so submit the full list. The owner of owner of the conversation will always be part of the set of recipients, though.
 * Response: JSON, statuses (200 - healthy, 503 unhealthy)
 
+## `GET /api/v1/pleroma/conversations/read`
+### Marks all user's conversations as read.
+* Method `POST`
+* Authentication: required
+* Params: None
+* Response: JSON, returns a list of Mastodon Conversation entities that were marked as read (200 - healthy, 503 unhealthy).
+
 ## `GET /api/pleroma/emoji/packs`
 ### Lists the custom emoji packs on the server
 * Method `GET`
@@ -472,3 +479,35 @@ The status posting endpoint takes an additional parameter, `in_reply_to_conversa
   * `artist`: the artist of the media playing [optional]
   * `length`: the length of the media playing [optional]
 * Response: the newly created media metadata entity representing the Listen activity
+
+# Emoji Reactions
+
+Emoji reactions work a lot like favourites do. They make it possible to react to a post with a single emoji character.
+
+## `POST /api/v1/pleroma/statuses/:id/react_with_emoji`
+### React to a post with a unicode emoji
+* Method: `POST`
+* Authentication: required
+* Params: `emoji`: A single character unicode emoji
+* Response: JSON, the status.
+
+## `POST /api/v1/pleroma/statuses/:id/unreact_with_emoji`
+### Remove a reaction to a post with a unicode emoji
+* Method: `POST`
+* Authentication: required
+* Params: `emoji`: A single character unicode emoji
+* Response: JSON, the status.
+
+## `GET /api/v1/pleroma/statuses/:id/emoji_reactions_by`
+### Get an object of emoji to account mappings with accounts that reacted to the post
+* Method: `GET`
+* Authentication: optional
+* Params: None
+* Response: JSON, a map of emoji to account list mappings.
+* Example Response:
+```json
+{
+  "😀" => [{"id" => "xyz.."...}, {"id" => "zyx..."}],
+  "🗡" => [{"id" => "abc..."}] 
+}
+```

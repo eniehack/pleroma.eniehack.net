@@ -276,11 +276,7 @@ defmodule Pleroma.Web.OStatusTest do
                  [] do
     incoming = File.read!("test/fixtures/incoming_note_activity_answer.xml")
     {:ok, [activity]} = OStatus.handle_incoming(incoming)
-<<<<<<< HEAD
-    object = Object.normalize(activity.data["object"], false)
-=======
     object = Object.normalize(activity, false)
->>>>>>> 472e7b796cfeb1445ee1572df414531655b050ce
 
     assert activity.data["type"] == "Create"
     assert object.data["type"] == "Note"
@@ -306,11 +302,7 @@ defmodule Pleroma.Web.OStatusTest do
     with_mock Pleroma.Web.Federator,
       allowed_incoming_reply_depth?: fn _ -> false end do
       {:ok, [activity]} = OStatus.handle_incoming(incoming)
-<<<<<<< HEAD
-      object = Object.normalize(activity.data["object"], false)
-=======
       object = Object.normalize(activity, false)
->>>>>>> 472e7b796cfeb1445ee1572df414531655b050ce
 
       refute called(OStatus.fetch_activity_from_url(object.data["inReplyTo"], :_))
     end

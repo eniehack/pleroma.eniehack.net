@@ -17,8 +17,14 @@ defmodule Pleroma.Application do
   def repository, do: @repository
 
   def user_agent do
-    info = "#{Pleroma.Web.base_url()} <#{Pleroma.Config.get([:instance, :email], "")}>"
-    named_version() <> "; " <> info
+    case Pleroma.Config.get([:http, :user_agent], :default) do
+      :default ->
+        info = "#{Pleroma.Web.base_url()} <#{Pleroma.Config.get([:instance, :email], "")}>"
+        named_version() <> "; " <> info
+
+      custom ->
+        custom
+    end
   end
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -36,7 +42,8 @@ defmodule Pleroma.Application do
         Pleroma.Emoji,
         Pleroma.Captcha,
         Pleroma.Daemons.ScheduledActivityDaemon,
-        Pleroma.Daemons.ActivityExpirationDaemon
+        Pleroma.Daemons.ActivityExpirationDaemon,
+        Pleroma.Plugs.RateLimiter.Supervisor
       ] ++
         cachex_children() ++
         hackney_pool_children() ++
@@ -161,11 +168,6 @@ defmodule Pleroma.Application do
         id: :web_push_init,
         start: {Task, :start_link, [&Pleroma.Web.Push.init/0]},
         restart: :temporary
-      },
-      %{
-        id: :federator_init,
-        start: {Task, :start_link, [&Pleroma.Web.Federator.init/0]},
-        restart: :temporary
       }
     ]
   end
@@ -175,11 +177,6 @@ defmodule Pleroma.Application do
       %{
         id: :web_push_init,
         start: {Task, :start_link, [&Pleroma.Web.Push.init/0]},
-        restart: :temporary
-      },
-      %{
-        id: :federator_init,
-        start: {Task, :start_link, [&Pleroma.Web.Federator.init/0]},
         restart: :temporary
       },
       %{

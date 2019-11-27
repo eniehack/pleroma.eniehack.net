@@ -59,10 +59,6 @@ scheduled_jobs =
     _ -> []
   end
 
-scheduled_jobs =
-  scheduled_jobs ++
-    [{"0 */6 * * * *", {Pleroma.Web.Websub, :refresh_subscriptions, []}}]
-
 config :pleroma, Pleroma.Scheduler,
   global: true,
   overlap: true,
@@ -94,7 +90,7 @@ config :pleroma, Pleroma.Captcha.Kocaptcha, endpoint: "https://captcha.kotobank.
 config :pleroma, Pleroma.Upload,
   uploader: Pleroma.Uploaders.Local,
   filters: [Pleroma.Upload.Filter.Dedupe],
-  link_name: true,
+  link_name: false,
   proxy_remote: false,
   proxy_opts: [
     redirect_on_failure: false,
@@ -184,7 +180,8 @@ config :pleroma, Pleroma.Web.Endpoint,
 
 # Configures Elixir's Logger
 config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
+  level: :debug,
+  format: "\n$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
 config :logger, :ex_syslogger,
@@ -212,6 +209,7 @@ config :tesla, adapter: Tesla.Adapter.Hackney
 config :pleroma, :http,
   proxy_url: nil,
   send_user_agent: true,
+  user_agent: :default,
   adapter: [
     ssl_options: [
       # Workaround for remote server certificate chain issues
@@ -243,9 +241,7 @@ config :pleroma, :instance,
   federation_incoming_replies_max_depth: 100,
   federation_reachability_timeout_days: 7,
   federation_publisher_modules: [
-    Pleroma.Web.ActivityPub.Publisher,
-    Pleroma.Web.Websub,
-    Pleroma.Web.Salmon
+    Pleroma.Web.ActivityPub.Publisher
   ],
   allow_relay: true,
   rewrite_policy: Pleroma.Web.ActivityPub.MRF.NoOpPolicy,
@@ -263,7 +259,7 @@ config :pleroma, :instance,
   mrf_transparency_exclusions: [],
   autofollowed_nicknames: [],
   max_pinned_statuses: 1,
-  no_attachment_links: false,
+  no_attachment_links: true,
   welcome_user_nickname: nil,
   welcome_message: nil,
   max_report_comment_size: 1000,
@@ -280,7 +276,13 @@ config :pleroma, :instance,
   account_field_name_length: 512,
   account_field_value_length: 2048,
   external_user_synchronization: true,
-  extended_nickname_format: false
+  extended_nickname_format: true
+
+config :pleroma, :feed,
+  post_title: %{
+    max_length: 100,
+    omission: "..."
+  }
 
 config :pleroma, :markup,
   # XXX - unfortunately, inline images must be enabled by default right now, because
@@ -290,8 +292,8 @@ config :pleroma, :markup,
   allow_tables: false,
   allow_fonts: false,
   scrub_policy: [
-    Pleroma.HTML.Transform.MediaProxy,
-    Pleroma.HTML.Scrubber.Default
+    Pleroma.HTML.Scrubber.Default,
+    Pleroma.HTML.Transform.MediaProxy
   ]
 
 config :pleroma, :frontend_configurations,
@@ -327,6 +329,16 @@ config :pleroma, :assets,
     }
   ],
   default_mascot: :pleroma_fox_tan
+
+config :pleroma, :manifest,
+  icons: [
+    %{
+      src: "/static/logo.png",
+      type: "image/png"
+    }
+  ],
+  theme_color: "#282c37",
+  background_color: "#191b22"
 
 config :pleroma, :activitypub,
   unfollow_blocked: true,
@@ -370,6 +382,10 @@ config :pleroma, :mrf_subchain, match_actor: %{}
 config :pleroma, :mrf_vocabulary,
   accept: [],
   reject: []
+
+config :pleroma, :mrf_object_age,
+  threshold: 172_800,
+  actions: [:delist, :strip_followers]
 
 config :pleroma, :rich_media,
   enabled: true,
@@ -595,10 +611,13 @@ config :pleroma, Pleroma.ActivityExpiration, enabled: true
 
 config :pleroma, Pleroma.Plugs.RemoteIp, enabled: false
 
+config :pleroma, :static_fe, enabled: false
+
 config :pleroma, :web_cache_ttl,
   activity_pub: nil,
   activity_pub_question: 30_000
 
+config :swarm, node_blacklist: [~r/myhtml_.*$/]
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
