@@ -5,7 +5,9 @@
 defmodule Pleroma.Conversation.ParticipationTest do
   use Pleroma.DataCase
   import Pleroma.Factory
+  alias Pleroma.Conversation
   alias Pleroma.Conversation.Participation
+  alias Pleroma.Repo
   alias Pleroma.User
   alias Pleroma.Web.CommonAPI
 
@@ -98,7 +100,9 @@ defmodule Pleroma.Conversation.ParticipationTest do
     assert participation.user_id == user.id
     assert participation.conversation_id == conversation.id
 
+    # Needed because updated_at is accurate down to a second
     :timer.sleep(1000)
+
     # Creating again returns the same participation
     {:ok, %Participation{} = participation_two} =
       Participation.create_for_user_and_conversation(user, conversation)
@@ -150,9 +154,7 @@ defmodule Pleroma.Conversation.ParticipationTest do
   test "gets all the participations for a user, ordered by updated at descending" do
     user = insert(:user)
     {:ok, activity_one} = CommonAPI.post(user, %{"status" => "x", "visibility" => "direct"})
-    :timer.sleep(1000)
     {:ok, activity_two} = CommonAPI.post(user, %{"status" => "x", "visibility" => "direct"})
-    :timer.sleep(1000)
 
     {:ok, activity_three} =
       CommonAPI.post(user, %{
@@ -160,6 +162,17 @@ defmodule Pleroma.Conversation.ParticipationTest do
         "visibility" => "direct",
         "in_reply_to_status_id" => activity_one.id
       })
+
+    # Offset participations because the accuracy of updated_at is down to a second
+
+    for {activity, offset} <- [{activity_two, 1}, {activity_three, 2}] do
+      conversation = Conversation.get_for_ap_id(activity.data["context"])
+      participation = Participation.for_user_and_conversation(user, conversation)
+      updated_at = NaiveDateTime.add(Map.get(participation, :updated_at), offset)
+
+      Ecto.Changeset.change(participation, %{updated_at: updated_at})
+      |> Repo.update!()
+    end
 
     assert [participation_one, participation_two] = Participation.for_user(user)
 
@@ -252,7 +265,7 @@ defmodule Pleroma.Conversation.ParticipationTest do
 
       assert User.get_cached_by_id(blocker.id).unread_conversation_count == 4
 
-      {:ok, blocker} = User.block(blocker, blocked)
+      {:ok, _user_relationship} = User.block(blocker, blocked)
 
       # The conversations with the blocked user are marked as read
       assert [%{read: true}, %{read: true}, %{read: true}, %{read: false}] =
@@ -274,7 +287,7 @@ defmodule Pleroma.Conversation.ParticipationTest do
       blocked = insert(:user)
       third_user = insert(:user)
 
-      {:ok, blocker} = User.block(blocker, blocked)
+      {:ok, _user_relationship} = User.block(blocker, blocked)
 
       # When the blocked user is the author
       {:ok, _direct1} =
@@ -311,7 +324,7 @@ defmodule Pleroma.Conversation.ParticipationTest do
           "visibility" => "direct"
         })
 
-      {:ok, blocker} = User.block(blocker, blocked)
+      {:ok, _user_relationship} = User.block(blocker, blocked)
       assert [%{read: true}] = Participation.for_user(blocker)
       assert User.get_cached_by_id(blocker.id).unread_conversation_count == 0
 

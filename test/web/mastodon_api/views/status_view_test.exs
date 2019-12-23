@@ -183,7 +183,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
     user = insert(:user)
     other_user = insert(:user)
 
-    {:ok, user} = User.mute(user, other_user)
+    {:ok, _user_relationships} = User.mute(user, other_user)
 
     {:ok, activity} = CommonAPI.post(other_user, %{"status" => "test"})
     status = StatusView.render("show.json", %{activity: activity})
@@ -199,7 +199,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
     user = insert(:user)
     other_user = insert(:user)
 
-    {:ok, user} = User.mute(user, other_user)
+    {:ok, _user_relationships} = User.mute(user, other_user)
 
     {:ok, activity} = CommonAPI.post(other_user, %{"status" => "test"})
     status = StatusView.render("show.json", %{activity: activity, for: user})
@@ -392,6 +392,21 @@ defmodule Pleroma.Web.MastodonAPI.StatusViewTest do
 
     assert represented[:id] == to_string(activity.id)
     assert length(represented[:media_attachments]) == 1
+  end
+
+  test "a Mobilizon event" do
+    user = insert(:user)
+
+    {:ok, object} =
+      Pleroma.Object.Fetcher.fetch_object_from_id(
+        "https://mobilizon.org/events/252d5816-00a3-4a89-a66f-15bf65c33e39"
+      )
+
+    %Activity{} = activity = Activity.get_create_by_object_ap_id(object.data["id"])
+
+    represented = StatusView.render("show.json", %{for: user, activity: activity})
+
+    assert represented[:id] == to_string(activity.id)
   end
 
   describe "build_tags/1" do

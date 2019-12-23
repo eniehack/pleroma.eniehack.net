@@ -100,9 +100,10 @@ defmodule Pleroma.Mixfile do
       {:plug_cowboy, "~> 2.0"},
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_ecto, "~> 4.0"},
+      {:ecto_enum, "~> 1.4"},
       {:ecto_sql, "~> 3.2"},
       {:postgrex, ">= 0.13.5"},
-      {:oban, "~> 0.8.1"},
+      {:oban, "~> 0.12.0"},
       {:quantum, "~> 2.3"},
       {:gettext, "~> 0.15"},
       {:comeonin, "~> 4.1.1"},
@@ -162,6 +163,9 @@ defmodule Pleroma.Mixfile do
       {:remote_ip,
        git: "https://git.pleroma.social/pleroma/remote_ip.git",
        ref: "825dc00aaba5a1b7c4202a532b696b595dd3bcb3"},
+      {:captcha,
+       git: "https://git.pleroma.social/pleroma/elixir-libraries/elixir-captcha.git",
+       ref: "c3c795c55f6b49d79d6ac70a0f91e525099fc3e2"},
       {:mox, "~> 0.5", only: :test}
     ] ++ oauth_deps()
   end
