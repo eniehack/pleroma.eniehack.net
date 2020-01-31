@@ -238,7 +238,9 @@ defmodule Pleroma.Web.CommonAPITest do
       assert reaction.data["actor"] == user.ap_id
       assert reaction.data["content"] == "👍"
 
-      # TODO: test error case.
+      {:ok, activity} = CommonAPI.post(other_user, %{"status" => "cofe"})
+
+      {:error, _} = CommonAPI.react_with_emoji(activity.id, user, ".")
     end
 
     test "unreacting to a status with an emoji" do
@@ -284,22 +286,22 @@ defmodule Pleroma.Web.CommonAPITest do
       {:ok, %Activity{}, _} = CommonAPI.favorite(activity.id, user)
     end
 
-    test "retweeting a status twice returns an error" do
+    test "retweeting a status twice returns the status" do
       user = insert(:user)
       other_user = insert(:user)
 
       {:ok, activity} = CommonAPI.post(other_user, %{"status" => "cofe"})
-      {:ok, %Activity{}, _object} = CommonAPI.repeat(activity.id, user)
-      {:error, _} = CommonAPI.repeat(activity.id, user)
+      {:ok, %Activity{} = activity, object} = CommonAPI.repeat(activity.id, user)
+      {:ok, ^activity, ^object} = CommonAPI.repeat(activity.id, user)
     end
 
-    test "favoriting a status twice returns an error" do
+    test "favoriting a status twice returns the status" do
       user = insert(:user)
       other_user = insert(:user)
 
       {:ok, activity} = CommonAPI.post(other_user, %{"status" => "cofe"})
-      {:ok, %Activity{}, _object} = CommonAPI.favorite(activity.id, user)
-      {:error, _} = CommonAPI.favorite(activity.id, user)
+      {:ok, %Activity{} = activity, object} = CommonAPI.favorite(activity.id, user)
+      {:ok, ^activity, ^object} = CommonAPI.favorite(activity.id, user)
     end
   end
 
