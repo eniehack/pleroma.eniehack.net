@@ -51,20 +51,6 @@ config :pleroma, Pleroma.Repo,
   telemetry_event: [Pleroma.Repo.Instrumenter],
   migration_lock: nil
 
-scheduled_jobs =
-  with digest_config <- Application.get_env(:pleroma, :email_notifications)[:digest],
-       true <- digest_config[:active] do
-    [{digest_config[:schedule], {Pleroma.Daemons.DigestEmailDaemon, :perform, []}}]
-  else
-    _ -> []
-  end
-
-config :pleroma, Pleroma.Scheduler,
-  global: true,
-  overlap: true,
-  timezone: :utc,
-  jobs: scheduled_jobs
-
 config :pleroma, Pleroma.Captcha,
   enabled: true,
   seconds_valid: 300,
@@ -255,7 +241,7 @@ config :pleroma, :instance,
   mrf_transparency_exclusions: [],
   autofollowed_nicknames: [],
   max_pinned_statuses: 1,
-  no_attachment_links: true,
+  attachment_links: false,
   welcome_user_nickname: nil,
   welcome_message: nil,
   max_report_comment_size: 1000,
@@ -271,7 +257,8 @@ config :pleroma, :instance,
   account_field_name_length: 512,
   account_field_value_length: 2048,
   external_user_synchronization: true,
-  extended_nickname_format: true
+  extended_nickname_format: true,
+  cleanup_attachments: false
 
 config :pleroma, :feed,
   post_title: %{
@@ -494,6 +481,12 @@ config :pleroma, Oban,
     scheduled_activities: 10,
     background: 5,
     attachments_cleanup: 5
+  ],
+  crontab: [
+    {"0 0 * * *", Pleroma.Workers.Cron.ClearOauthTokenWorker},
+    {"0 * * * *", Pleroma.Workers.Cron.StatsWorker},
+    {"* * * * *", Pleroma.Workers.Cron.PurgeExpiredActivitiesWorker},
+    {"0 0 * * 0", Pleroma.Workers.Cron.DigestEmailsWorker}
   ]
 
 config :pleroma, :workers,
@@ -508,7 +501,6 @@ config :pleroma, :fetch_initial_posts,
 
 config :auto_linker,
   opts: [
-    scheme: true,
     extra: true,
     # TODO: Set to :no_scheme when it works properly
     validate_tld: true,
@@ -578,7 +570,6 @@ config :pleroma, Pleroma.ScheduledActivity,
 config :pleroma, :email_notifications,
   digest: %{
     active: false,
-    schedule: "0 0 * * 0",
     interval: 7,
     inactivity_threshold: 7
   }
@@ -586,8 +577,7 @@ config :pleroma, :email_notifications,
 config :pleroma, :oauth2,
   token_expires_in: 600,
   issue_new_refresh_token: true,
-  clean_expired_tokens: false,
-  clean_expired_tokens_interval: 86_400_000
+  clean_expired_tokens: false
 
 config :pleroma, :database, rum_enabled: false
 
@@ -622,7 +612,6 @@ config :pleroma, :modules, runtime_dir: "instance/modules"
 
 config :pleroma, configurable_from_database: false
 
-config :swarm, node_blacklist: [~r/myhtml_.*$/]
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

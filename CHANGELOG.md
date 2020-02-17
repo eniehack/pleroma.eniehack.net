@@ -9,15 +9,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Breaking**: OStatus protocol support
 - **Breaking**: MDII uploader
 - **Breaking**: Using third party engines for user recommendation
+<details>
+  <summary>API Changes</summary>
+- **Breaking**: AdminAPI: migrate_from_db endpoint
+</details>
 
 ### Changed
 - **Breaking:** Pleroma won't start if it detects unapplied migrations
-- **Breaking:** attachments are removed along with statuses. Does not affect duplicate files and attachments without status.
 - **Breaking:** Elixir >=1.8 is now required (was >= 1.7)
 - **Breaking:** `Pleroma.Plugs.RemoteIp` and `:rate_limiter` enabled by default. Please ensure your reverse proxy forwards the real IP!
 - **Breaking:** attachment links (`config :pleroma, :instance, no_attachment_links` and `config :pleroma, Pleroma.Upload, link_name`) disabled by default
 - **Breaking:** OAuth: defaulted `[:auth, :enforce_oauth_admin_scope_usage]` setting to `true` which demands `admin` OAuth scope to perform admin actions (in addition to `is_admin` flag on User); make sure to use bundled or newer versions of AdminFE & PleromaFE to access admin / moderator features.
 - **Breaking:** Dynamic configuration has been rearchitected. The `:pleroma, :instance, dynamic_configuration` setting has been replaced with `config :pleroma, configurable_from_database`. Please backup your configuration to a file and run the migration task to ensure consistency with the new schema.
+- **Breaking:** `:instance, no_attachment_links` has been replaced with `:instance, attachment_links` which still takes a boolean value but doesn't use double negative language.
 - Replaced [pleroma_job_queue](https://git.pleroma.social/pleroma/pleroma_job_queue) and `Pleroma.Web.Federator.RetryQueue` with [Oban](https://github.com/sorentwo/oban) (see [`docs/config.md`](docs/config.md) on migrating customized worker / retry settings)
 - Introduced [quantum](https://github.com/quantum-elixir/quantum-core) job scheduler
 - Enabled `:instance, extended_nickname_format` in the default config
@@ -34,11 +38,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 <details>
   <summary>API Changes</summary>
 
+- **Breaking** EmojiReactions: Change endpoints and responses to align with Mastodon
 - **Breaking** Admin API: `PATCH /api/pleroma/admin/users/:nickname/force_password_reset` is now `PATCH /api/pleroma/admin/users/force_password_reset` (accepts `nicknames` array in the request body)
 - **Breaking:** Admin API: Return link alongside with token on password reset
 - **Breaking:** Admin API: `PUT /api/pleroma/admin/reports/:id` is now `PATCH /api/pleroma/admin/reports`, see admin_api.md for details
 - **Breaking:** `/api/pleroma/admin/users/invite_token` now uses `POST`, changed accepted params and returns full invite in json instead of only token string.
 - **Breaking** replying to reports is now "report notes", enpoint changed from `POST /api/pleroma/admin/reports/:id/respond` to `POST /api/pleroma/admin/reports/:id/notes`
+- Mastodon API: stopped sanitizing display names, field names and subject fields since they are supposed to be treated as plaintext
 - Admin API: Return `total` when querying for reports
 - Mastodon API: Return `pleroma.direct_conversation_id` when creating a direct message (`POST /api/v1/statuses`)
 - Admin API: Return link alongside with token on password reset
@@ -54,6 +60,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - `:chat_limit` option to limit chat characters.
+- `cleanup_attachments` option to remove attachments along with statuses. Does not affect duplicate files and attachments without status. Enabling this will increase load to database when deleting statuses on larger instances.
 - Refreshing poll results for remote polls
 - Authentication: Added rate limit for password-authorized actions / login existence checks
 - Static Frontend: Add the ability to render user profiles and notices server-side without requiring JS app.
@@ -115,7 +122,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - MRF: `Delete` activities being exempt from MRF policies
 - OTP releases: Not being able to configure OAuth expired token cleanup interval
 - OTP releases: Not being able to configure HTML sanitization policy
+- OTP releases: Not being able to change upload limit (again)
 - Favorites timeline now ordered by favorite date instead of post date
+- Support for cancellation of a follow request
 <details>
   <summary>API Changes</summary>
 
