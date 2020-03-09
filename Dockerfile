@@ -50,4 +50,6 @@ COPY ./docker-entrypoint.sh ${HOME}
 
 EXPOSE 4000
 
+VOLUME ["/var/lib/pleroma/uploads"]
+
 ENTRYPOINT ["/opt/pleroma/docker-entrypoint.sh"]
