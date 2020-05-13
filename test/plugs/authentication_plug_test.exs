@@ -1,11 +1,13 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Plugs.AuthenticationPlugTest do
   use Pleroma.Web.ConnCase, async: true
 
   alias Pleroma.Plugs.AuthenticationPlug
+  alias Pleroma.Plugs.OAuthScopesPlug
+  alias Pleroma.Plugs.PlugHelper
   alias Pleroma.User
 
   import ExUnit.CaptureLog
@@ -36,13 +38,16 @@ defmodule Pleroma.Plugs.AuthenticationPlugTest do
     assert ret_conn == conn
   end
 
-  test "with a correct password in the credentials, it assigns the auth_user", %{conn: conn} do
+  test "with a correct password in the credentials, " <>
+         "it assigns the auth_user and marks OAuthScopesPlug as skipped",
+       %{conn: conn} do
     conn =
       conn
       |> assign(:auth_credentials, %{password: "guy"})
       |> AuthenticationPlug.call(%{})
 
     assert conn.assigns.user == conn.assigns.auth_user
+    assert PlugHelper.plug_skipped?(conn, OAuthScopesPlug)
   end
 
   test "with a wrong password in the credentials, it does nothing", %{conn: conn} do

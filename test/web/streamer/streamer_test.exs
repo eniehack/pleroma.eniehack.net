@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.StreamerTest do
@@ -20,7 +20,7 @@ defmodule Pleroma.Web.StreamerTest do
   @streamer_timeout 150
   @streamer_start_wait 10
 
-  clear_config_all([:instance, :skip_thread_containment])
+  clear_config([:instance, :skip_thread_containment])
 
   describe "user streams" do
     setup do
@@ -198,7 +198,7 @@ defmodule Pleroma.Web.StreamerTest do
       Pleroma.Config.put([:instance, :skip_thread_containment], false)
       author = insert(:user)
       user = insert(:user)
-      User.follow(user, author, "accept")
+      User.follow(user, author, :follow_accept)
 
       activity =
         insert(:note_activity,
@@ -221,7 +221,7 @@ defmodule Pleroma.Web.StreamerTest do
       Pleroma.Config.put([:instance, :skip_thread_containment], true)
       author = insert(:user)
       user = insert(:user)
-      User.follow(user, author, "accept")
+      User.follow(user, author, :follow_accept)
 
       activity =
         insert(:note_activity,
@@ -244,7 +244,7 @@ defmodule Pleroma.Web.StreamerTest do
       Pleroma.Config.put([:instance, :skip_thread_containment], false)
       author = insert(:user)
       user = insert(:user, skip_thread_containment: true)
-      User.follow(user, author, "accept")
+      User.follow(user, author, :follow_accept)
 
       activity =
         insert(:note_activity,

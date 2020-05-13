@@ -1,27 +1,19 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Stats do
   import Ecto.Query
+  alias Pleroma.CounterCache
   alias Pleroma.Repo
   alias Pleroma.User
 
   use GenServer
 
-  @init_state %{
-    peers: [],
-    stats: %{
-      domain_count: 0,
-      status_count: 0,
-      user_count: 0
-    }
-  }
-
   def start_link(_) do
     GenServer.start_link(
       __MODULE__,
-      @init_state,
+      nil,
       name: __MODULE__
     )
   end
@@ -52,12 +44,12 @@ defmodule Pleroma.Stats do
     peers
   end
 
-  def init(args) do
-    {:ok, args}
+  def init(_args) do
+    {:ok, calculate_stat_data()}
   end
 
   def handle_call(:force_update, _from, _state) do
-    new_stats = get_stat_data()
+    new_stats = calculate_stat_data()
     {:reply, new_stats, new_stats}
   end
 
@@ -66,12 +58,12 @@ defmodule Pleroma.Stats do
   end
 
   def handle_cast(:run_update, _state) do
-    new_stats = get_stat_data()
+    new_stats = calculate_stat_data()
 
     {:noreply, new_stats}
   end
 
-  defp get_stat_data do
+  def calculate_stat_data do
     peers =
       from(
         u in User,
@@ -85,7 +77,15 @@ defmodule Pleroma.Stats do
 
     status_count = Repo.aggregate(User.Query.build(%{local: true}), :sum, :note_count)
 
-    user_count = Repo.aggregate(User.Query.build(%{local: true, active: true}), :count, :id)
+    users_query =
+      from(u in User,
+        where: u.deactivated != true,
+        where: u.local == true,
+        where: not is_nil(u.nickname),
+        where: not u.invisible
+      )
+
+    user_count = Repo.aggregate(users_query, :count, :id)
 
     %{
       peers: peers,
@@ -94,6 +94,23 @@ defmodule Pleroma.Stats do
         status_count: status_count,
         user_count: user_count
       }
+    }
+  end
+
+  def get_status_visibility_count do
+    counter_cache =
+      CounterCache.get_as_map([
+        "status_visibility_public",
+        "status_visibility_private",
+        "status_visibility_unlisted",
+        "status_visibility_direct"
+      ])
+
+    %{
+      public: counter_cache["status_visibility_public"] || 0,
+      unlisted: counter_cache["status_visibility_unlisted"] || 0,
+      private: counter_cache["status_visibility_private"] || 0,
+      direct: counter_cache["status_visibility_direct"] || 0
     }
   end
 end

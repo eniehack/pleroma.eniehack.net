@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.OAuth.OAuthControllerTest do
@@ -17,7 +17,8 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
     key: "_test",
     signing_salt: "cooldude"
   ]
-  clear_config_all([:instance, :account_activation_required])
+
+  clear_config([:instance, :account_activation_required])
 
   describe "in OAuth consumer mode, " do
     setup do
@@ -580,7 +581,7 @@ defmodule Pleroma.Web.OAuth.OAuthControllerTest do
       # In case scope param is missing, expecting _all_ app-supported scopes to be granted
       for user <- [non_admin, admin],
           {requested_scopes, expected_scopes} <-
-            %{scopes_subset => scopes_subset, nil => app_scopes} do
+            %{scopes_subset => scopes_subset, nil: app_scopes} do
         conn =
           post(
             build_conn(),

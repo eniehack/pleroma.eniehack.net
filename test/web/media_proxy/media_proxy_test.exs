@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MediaProxyTest do
@@ -9,6 +9,7 @@ defmodule Pleroma.Web.MediaProxyTest do
   alias Pleroma.Web.MediaProxy.MediaProxyController
 
   clear_config([:media_proxy, :enabled])
+  clear_config(Pleroma.Upload)
 
   describe "when enabled" do
     setup do
@@ -87,11 +88,7 @@ defmodule Pleroma.Web.MediaProxyTest do
 
     test "filename_matches preserves the encoded or decoded path" do
       assert MediaProxyController.filename_matches(
-<<<<<<< HEAD:test/media_proxy_test.exs
-               true,
-=======
                %{"filename" => "/Hello world.jpg"},
->>>>>>> 472e7b796cfeb1445ee1572df414531655b050ce:test/web/media_proxy/media_proxy_test.exs
                "/Hello world.jpg",
                "http://pleroma.social/Hello world.jpg"
              ) == :ok
@@ -103,19 +100,10 @@ defmodule Pleroma.Web.MediaProxyTest do
              ) == :ok
 
       assert MediaProxyController.filename_matches(
-<<<<<<< HEAD:test/media_proxy_test.exs
-               true,
-=======
                %{"filename" => "/my%2Flong%2Furl%2F2019%2F07%2FS.jpg"},
->>>>>>> 472e7b796cfeb1445ee1572df414531655b050ce:test/web/media_proxy/media_proxy_test.exs
                "/my%2Flong%2Furl%2F2019%2F07%2FS.jpg",
                "http://pleroma.social/my%2Flong%2Furl%2F2019%2F07%2FS.jpg"
              ) == :ok
-    end
-
-    test "encoded url are tried to match for proxy as `conn.request_path` encodes the url" do
-      # conn.request_path will return encoded url
-      request_path = "/ANALYSE-DAI-_-LE-STABLECOIN-100-D%C3%89CENTRALIS%C3%89-BQ.jpg"
 
       assert MediaProxyController.filename_matches(
                %{"filename" => "/my%2Flong%2Furl%2F2019%2F07%2FS.jp"},
@@ -237,7 +225,6 @@ defmodule Pleroma.Web.MediaProxyTest do
     end
 
     test "ensure Pleroma.Upload base_url is always whitelisted" do
-      upload_config = Pleroma.Config.get([Pleroma.Upload])
       media_url = "https://media.pleroma.social"
       Pleroma.Config.put([Pleroma.Upload, :base_url], media_url)
 
@@ -245,8 +232,6 @@ defmodule Pleroma.Web.MediaProxyTest do
       encoded = url(url)
 
       assert String.starts_with?(encoded, media_url)
-
-      Pleroma.Config.put([Pleroma.Upload], upload_config)
     end
   end
 end

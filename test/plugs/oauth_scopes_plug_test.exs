@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Plugs.OAuthScopesPlugTest do
@@ -14,6 +14,18 @@ defmodule Pleroma.Plugs.OAuthScopesPlugTest do
 
   setup_with_mocks([{EnsurePublicOrAuthenticatedPlug, [], [call: fn conn, _ -> conn end]}]) do
     :ok
+  end
+
+  test "is not performed if marked as skipped", %{conn: conn} do
+    with_mock OAuthScopesPlug, [:passthrough], perform: &passthrough([&1, &2]) do
+      conn =
+        conn
+        |> OAuthScopesPlug.skip_plug()
+        |> OAuthScopesPlug.call(%{scopes: ["random_scope"]})
+
+      refute called(OAuthScopesPlug.perform(:_, :_))
+      refute conn.halted
+    end
   end
 
   test "if `token.scopes` fulfills specified 'any of' conditions, " <>

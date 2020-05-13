@@ -1,9 +1,11 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Plugs.LegacyAuthenticationPlug do
   import Plug.Conn
+
+  alias Pleroma.Plugs.OAuthScopesPlug
   alias Pleroma.User
 
   def init(options) do
@@ -27,6 +29,7 @@ defmodule Pleroma.Plugs.LegacyAuthenticationPlug do
       conn
       |> assign(:auth_user, user)
       |> assign(:user, user)
+      |> OAuthScopesPlug.skip_plug()
     else
       _ ->
         conn

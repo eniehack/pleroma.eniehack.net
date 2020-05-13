@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.CommonAPI.Utils do
@@ -23,24 +23,6 @@ defmodule Pleroma.Web.CommonAPI.Utils do
 
   require Logger
   require Pleroma.Constants
-
-  # This is a hack for twidere.
-  def get_by_id_or_ap_id(id) do
-    activity =
-      with true <- FlakeId.flake_id?(id),
-           %Activity{} = activity <- Activity.get_by_id_with_object(id) do
-        activity
-      else
-        _ -> Activity.get_create_by_object_ap_id_with_object(id)
-      end
-
-    activity &&
-      if activity.data["type"] == "Create" do
-        activity
-      else
-        Activity.get_create_by_object_ap_id_with_object(activity.data["object"])
-      end
-  end
 
   def attachments_from_ids(%{"media_ids" => ids, "descriptions" => desc} = _) do
     attachments_from_ids_descs(ids, desc)
@@ -331,7 +313,7 @@ defmodule Pleroma.Web.CommonAPI.Utils do
   def format_input(text, "text/markdown", options) do
     text
     |> Formatter.mentions_escape(options)
-    |> Earmark.as_html!()
+    |> Earmark.as_html!(%Earmark.Options{renderer: Pleroma.EarmarkRenderer})
     |> Formatter.linkify(options)
     |> Formatter.html_escape("text/html")
   end
@@ -591,7 +573,7 @@ defmodule Pleroma.Web.CommonAPI.Utils do
     limit = Pleroma.Config.get([:instance, :limit])
     length = String.length(full_payload)
 
-    if length < limit do
+    if length <= limit do
       :ok
     else
       {:error, dgettext("errors", "The status is over the character limit")}

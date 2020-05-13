@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.User.Query do
@@ -48,7 +48,7 @@ defmodule Pleroma.User.Query do
             followers: User.t(),
             friends: User.t(),
             recipients_from_activity: [String.t()],
-            nickname: [String.t()],
+            nickname: [String.t()] | String.t(),
             ap_id: [String.t()],
             order_by: term(),
             select: term(),
@@ -148,7 +148,7 @@ defmodule Pleroma.User.Query do
       as: :relationships,
       on: r.following_id == ^id and r.follower_id == u.id
     )
-    |> where([relationships: r], r.state == "accept")
+    |> where([relationships: r], r.state == ^:follow_accept)
   end
 
   defp compose_query({:friends, %User{id: id}}, query) do
@@ -158,7 +158,7 @@ defmodule Pleroma.User.Query do
       as: :relationships,
       on: r.following_id == u.id and r.follower_id == ^id
     )
-    |> where([relationships: r], r.state == "accept")
+    |> where([relationships: r], r.state == ^:follow_accept)
   end
 
   defp compose_query({:recipients_from_activity, to}, query) do
@@ -173,7 +173,7 @@ defmodule Pleroma.User.Query do
     )
     |> where(
       [u, following: f, relationships: r],
-      u.ap_id in ^to or (f.follower_address in ^to and r.state == "accept")
+      u.ap_id in ^to or (f.follower_address in ^to and r.state == ^:follow_accept)
     )
     |> distinct(true)
   end

@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright _ 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright _ 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.RichMedia.Helpers do
@@ -64,5 +64,8 @@ defmodule Pleroma.Web.RichMedia.Helpers do
 
   def fetch_data_for_activity(_), do: %{}
 
-  def perform(:fetch, %Activity{} = activity), do: fetch_data_for_activity(activity)
+  def perform(:fetch, %Activity{} = activity) do
+    fetch_data_for_activity(activity)
+    :ok
+  end
 end

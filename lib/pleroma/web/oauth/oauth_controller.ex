@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.OAuth.OAuthController do
@@ -26,6 +26,8 @@ defmodule Pleroma.Web.OAuth.OAuthController do
   plug(:fetch_session)
   plug(:fetch_flash)
   plug(RateLimiter, [name: :authentication] when action == :create_authorization)
+
+  plug(:skip_plug, Pleroma.Plugs.OAuthScopesPlug)
 
   action_fallback(Pleroma.Web.OAuth.FallbackController)
 

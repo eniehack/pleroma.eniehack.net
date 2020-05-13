@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Metadata.Providers.OpenGraph do
@@ -68,7 +68,7 @@ defmodule Pleroma.Web.Metadata.Providers.OpenGraph do
            property: "og:title",
            content: Utils.user_name_string(user)
          ], []},
-        {:meta, [property: "og:url", content: User.profile_url(user)], []},
+        {:meta, [property: "og:url", content: user.uri || user.ap_id], []},
         {:meta, [property: "og:description", content: truncated_bio], []},
         {:meta, [property: "og:type", content: "website"], []},
         {:meta, [property: "og:image", content: Utils.attachment_url(User.avatar_url(user))], []},

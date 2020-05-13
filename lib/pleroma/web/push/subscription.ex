@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.Push.Subscription do
@@ -30,6 +30,14 @@ defmodule Pleroma.Web.Push.Subscription do
   defp alerts(%{"data" => %{"alerts" => alerts}}) do
     alerts = Map.take(alerts, @supported_alert_types)
     %{"alerts" => alerts}
+  end
+
+  def enabled?(subscription, "follow_request") do
+    enabled?(subscription, "follow")
+  end
+
+  def enabled?(subscription, alert_type) do
+    get_in(subscription.data, ["alerts", alert_type])
   end
 
   def create(

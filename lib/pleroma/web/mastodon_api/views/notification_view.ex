@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.NotificationView do
@@ -49,11 +49,11 @@ defmodule Pleroma.Web.MastodonAPI.NotificationView do
         "move" ->
           put_target(response, activity, user)
 
-        "follow" ->
-          response
-
         "pleroma:emoji_reaction" ->
           put_status(response, parent_activity, user) |> put_emoji(activity)
+
+        type when type in ["follow", "follow_request"] ->
+          response
 
         _ ->
           nil

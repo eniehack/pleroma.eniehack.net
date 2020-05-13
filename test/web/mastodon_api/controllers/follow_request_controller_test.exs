@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.FollowRequestControllerTest do
@@ -21,7 +21,7 @@ defmodule Pleroma.Web.MastodonAPI.FollowRequestControllerTest do
       other_user = insert(:user)
 
       {:ok, _activity} = ActivityPub.follow(other_user, user)
-      {:ok, other_user} = User.follow(other_user, user, "pending")
+      {:ok, other_user} = User.follow(other_user, user, :follow_pending)
 
       assert User.following?(other_user, user) == false
 
@@ -35,7 +35,7 @@ defmodule Pleroma.Web.MastodonAPI.FollowRequestControllerTest do
       other_user = insert(:user)
 
       {:ok, _activity} = ActivityPub.follow(other_user, user)
-      {:ok, other_user} = User.follow(other_user, user, "pending")
+      {:ok, other_user} = User.follow(other_user, user, :follow_pending)
 
       user = User.get_cached_by_id(user.id)
       other_user = User.get_cached_by_id(other_user.id)

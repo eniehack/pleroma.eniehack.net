@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule HttpRequestMock do
@@ -211,7 +211,7 @@ defmodule HttpRequestMock do
   end
 
   def get(
-        "https://squeet.me/xrd/?uri=lain@squeet.me",
+        "https://squeet.me/xrd/?uri=acct:lain@squeet.me",
         _,
         _,
         Accept: "application/xrd+xml,application/jrd+json"
@@ -850,7 +850,7 @@ defmodule HttpRequestMock do
   end
 
   def get(
-        "https://social.heldscal.la/.well-known/webfinger?resource=shp@social.heldscal.la",
+        "https://social.heldscal.la/.well-known/webfinger?resource=acct:shp@social.heldscal.la",
         _,
         _,
         Accept: "application/xrd+xml,application/jrd+json"
@@ -863,7 +863,7 @@ defmodule HttpRequestMock do
   end
 
   def get(
-        "https://social.heldscal.la/.well-known/webfinger?resource=invalid_content@social.heldscal.la",
+        "https://social.heldscal.la/.well-known/webfinger?resource=acct:invalid_content@social.heldscal.la",
         _,
         _,
         Accept: "application/xrd+xml,application/jrd+json"
@@ -880,7 +880,7 @@ defmodule HttpRequestMock do
   end
 
   def get(
-        "http://framatube.org/main/xrd?uri=framasoft@framatube.org",
+        "http://framatube.org/main/xrd?uri=acct:framasoft@framatube.org",
         _,
         _,
         Accept: "application/xrd+xml,application/jrd+json"
@@ -939,7 +939,7 @@ defmodule HttpRequestMock do
   end
 
   def get(
-        "https://gerzilla.de/xrd/?uri=kaniini@gerzilla.de",
+        "https://gerzilla.de/xrd/?uri=acct:kaniini@gerzilla.de",
         _,
         _,
         Accept: "application/xrd+xml,application/jrd+json"
@@ -1135,7 +1135,7 @@ defmodule HttpRequestMock do
   end
 
   def get(
-        "https://zetsubou.xn--q9jyb4c/.well-known/webfinger?resource=lain@zetsubou.xn--q9jyb4c",
+        "https://zetsubou.xn--q9jyb4c/.well-known/webfinger?resource=acct:lain@zetsubou.xn--q9jyb4c",
         _,
         _,
         Accept: "application/xrd+xml,application/jrd+json"
@@ -1148,7 +1148,7 @@ defmodule HttpRequestMock do
   end
 
   def get(
-        "https://zetsubou.xn--q9jyb4c/.well-known/webfinger?resource=https://zetsubou.xn--q9jyb4c/users/lain",
+        "https://zetsubou.xn--q9jyb4c/.well-known/webfinger?resource=acct:https://zetsubou.xn--q9jyb4c/users/lain",
         _,
         _,
         Accept: "application/xrd+xml,application/jrd+json"
@@ -1273,8 +1273,27 @@ defmodule HttpRequestMock do
     {:ok, %Tesla.Env{status: 200, body: File.read!("test/fixtures/tesla_mock/rin.json")}}
   end
 
+  def get(
+        "https://channels.tests.funkwhale.audio/federation/music/uploads/42342395-0208-4fee-a38d-259a6dae0871",
+        _,
+        _,
+        _
+      ) do
+    {:ok,
+     %Tesla.Env{status: 200, body: File.read!("test/fixtures/tesla_mock/funkwhale_audio.json")}}
+  end
+
+  def get("https://channels.tests.funkwhale.audio/federation/actors/compositions", _, _, _) do
+    {:ok,
+     %Tesla.Env{status: 200, body: File.read!("test/fixtures/tesla_mock/funkwhale_channel.json")}}
+  end
+
   def get("http://example.com/rel_me/error", _, _, _) do
     {:ok, %Tesla.Env{status: 404, body: ""}}
+  end
+
+  def get("https://relay.mastodon.host/actor", _, _, _) do
+    {:ok, %Tesla.Env{status: 200, body: File.read!("test/fixtures/relay/relay.json")}}
   end
 
   def get(url, query, body, headers) do
@@ -1288,6 +1307,10 @@ defmodule HttpRequestMock do
   #
 
   def post(url, query \\ [], body \\ [], headers \\ [])
+
+  def post("https://relay.mastodon.host/inbox", _, _, _) do
+    {:ok, %Tesla.Env{status: 200, body: ""}}
+  end
 
   def post("http://example.org/needs_refresh", _, _, _) do
     {:ok,

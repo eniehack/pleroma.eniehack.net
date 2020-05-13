@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.TwitterAPI.UtilControllerTest do
@@ -19,7 +19,6 @@ defmodule Pleroma.Web.TwitterAPI.UtilControllerTest do
 
   clear_config([:instance])
   clear_config([:frontend_configurations, :pleroma_fe])
-  clear_config([:user, :deny_follow_blocked])
 
   describe "POST /api/pleroma/follow_import" do
     setup do: oauth_access(["follow"])
@@ -95,6 +94,30 @@ defmodule Pleroma.Web.TwitterAPI.UtilControllerTest do
         end
       end
     end
+
+    test "it imports follows with different nickname variations", %{conn: conn} do
+      [user2, user3, user4, user5, user6] = insert_list(5, :user)
+
+      identifiers =
+        [
+          user2.ap_id,
+          user3.nickname,
+          "  ",
+          "@" <> user4.nickname,
+          user5.nickname <> "@localhost",
+          "@" <> user6.nickname <> "@localhost"
+        ]
+        |> Enum.join("\n")
+
+      response =
+        conn
+        |> post("/api/pleroma/follow_import", %{"list" => identifiers})
+        |> json_response(:ok)
+
+      assert response == "job started"
+      assert [{:ok, job_result}] = ObanHelpers.perform_all()
+      assert job_result == [user2, user3, user4, user5, user6]
+    end
   end
 
   describe "POST /api/pleroma/blocks_import" do
@@ -135,6 +158,29 @@ defmodule Pleroma.Web.TwitterAPI.UtilControllerTest do
                  all_enqueued(worker: Pleroma.Workers.BackgroundWorker)
                )
       end
+    end
+
+    test "it imports blocks with different nickname variations", %{conn: conn} do
+      [user2, user3, user4, user5, user6] = insert_list(5, :user)
+
+      identifiers =
+        [
+          user2.ap_id,
+          user3.nickname,
+          "@" <> user4.nickname,
+          user5.nickname <> "@localhost",
+          "@" <> user6.nickname <> "@localhost"
+        ]
+        |> Enum.join(" ")
+
+      response =
+        conn
+        |> post("/api/pleroma/blocks_import", %{"list" => identifiers})
+        |> json_response(:ok)
+
+      assert response == "job started"
+      assert [{:ok, job_result}] = ObanHelpers.perform_all()
+      assert job_result == [user2, user3, user4, user5, user6]
     end
   end
 

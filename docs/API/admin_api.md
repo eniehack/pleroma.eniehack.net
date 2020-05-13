@@ -260,6 +260,33 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
   - `nickname` or `id`
   - *optional* `page_size`: number of statuses to return (default is `20`)
   - *optional* `godmode`: `true`/`false` – allows to see private statuses
+  - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
+- Response:
+  - On failure: `Not found`
+  - On success: JSON array of user's latest statuses
+
+## `GET /api/pleroma/admin/instances/:instance/statuses`
+
+### Retrive instance's latest statuses
+
+- Params:
+  - `instance`: instance name
+  - *optional* `page_size`: number of statuses to return (default is `20`)
+  - *optional* `godmode`: `true`/`false` – allows to see private statuses
+  - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
+- Response:
+  - On failure: `Not found`
+  - On success: JSON array of instance's latest statuses
+
+## `GET /api/pleroma/admin/statuses`
+
+### Retrives all latest statuses
+
+- Params:
+  - *optional* `page_size`: number of statuses to return (default is `20`)
+  - *optional* `local_only`: excludes remote statuses
+  - *optional* `godmode`: `true`/`false` – allows to see private statuses
+  - *optional* `with_reblogs`: `true`/`false` – allows to see reblogs (default is false)
 - Response:
   - On failure: `Not found`
   - On success: JSON array of user's latest statuses
@@ -386,6 +413,83 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 - Params:
   - `nicknames`
 - Response: none (code `204`)
+
+## `GET /api/pleroma/admin/users/:nickname/credentials`
+
+### Get the user's email, password, display and settings-related fields
+
+- Params:
+  - `nickname`
+
+- Response:
+
+```json
+{
+  "actor_type": "Person",
+  "allow_following_move": true,
+  "avatar": "https://pleroma.social/media/7e8e7508fd545ef580549b6881d80ec0ff2c81ed9ad37b9bdbbdf0e0d030159d.jpg",
+  "background": "https://pleroma.social/media/4de34c0bd10970d02cbdef8972bef0ebbf55f43cadc449554d4396156162fe9a.jpg",
+  "banner": "https://pleroma.social/media/8d92ba2bd244b613520abf557dd448adcd30f5587022813ee9dd068945986946.jpg",
+  "bio": "bio",
+  "default_scope": "public",
+  "discoverable": false,
+  "email": "user@example.com",
+  "fields": [
+    {
+      "name": "example",
+      "value": "<a href=\"https://example.com\" rel=\"ugc\">https://example.com</a>"
+    }
+  ],
+  "hide_favorites": false,
+  "hide_followers": false,
+  "hide_followers_count": false,
+  "hide_follows": false,
+  "hide_follows_count": false,
+  "id": "9oouHaEEUR54hls968",
+  "locked": true,
+  "name": "user",
+  "no_rich_text": true,
+  "pleroma_settings_store": {},
+  "raw_fields": [
+    {
+      "id": 1,
+      "name": "example",
+      "value": "https://example.com"
+    },
+  ],
+  "show_role": true,
+  "skip_thread_containment": false
+}
+```
+
+## `PATCH /api/pleroma/admin/users/:nickname/credentials`
+
+### Change the user's email, password, display and settings-related fields
+
+- Params:
+  - `email`
+  - `password`
+  - `name`
+  - `bio`
+  - `avatar`
+  - `locked`
+  - `no_rich_text`
+  - `default_scope`
+  - `banner`
+  - `hide_follows`
+  - `hide_followers`
+  - `hide_followers_count`
+  - `hide_follows_count`
+  - `hide_favorites`
+  - `allow_following_move`
+  - `background`
+  - `show_role`
+  - `skip_thread_containment`
+  - `fields`
+  - `discoverable`
+  - `actor_type`
+
+- Response: none (code `200`)
 
 ## `GET /api/pleroma/admin/reports`
 
@@ -669,6 +773,8 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 
 ### Restarts pleroma application
 
+**Only works when configuration from database is enabled.**
+
 - Params: none
 - Response:
   - On failure:
@@ -678,9 +784,24 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 {}
 ```
 
+## `GET /api/pleroma/admin/need_reboot`
+
+### Returns the flag whether the pleroma should be restarted
+
+- Params: none
+- Response:
+  - `need_reboot` - boolean
+```json
+{
+  "need_reboot": false
+}
+```
+
 ## `GET /api/pleroma/admin/config`
 
 ### Get list of merged default settings with saved in database.
+
+*If `need_reboot` is `true`, instance must be restarted, so reboot time settings can take effect.*
 
 **Only works when configuration from database is enabled.**
 
@@ -692,19 +813,22 @@ Note: Available `:permission_group` is currently moderator and admin. 404 is ret
 
 ```json
 {
-  configs: [
+  "configs": [
     {
       "group": ":pleroma",
       "key": "Pleroma.Upload",
       "value": []
      }
-  ]
+  ],
+  "need_reboot": true
 }
 ```
 
 ## `POST /api/pleroma/admin/config`
 
 ### Update config settings
+
+*If `need_reboot` is `true`, instance must be restarted, so reboot time settings can take effect.*
 
 **Only works when configuration from database is enabled.**
 
@@ -793,7 +917,7 @@ config :quack,
 ```
 ```json
 {
-  configs: [
+  "configs": [
     {"group": ":quack", "key": ":level", "value": ":debug"},
     {"group": ":quack", "key": ":meta", "value": [":all"]},
     ...
@@ -804,7 +928,7 @@ config :quack,
 
 ```json
 {
-  configs: [
+  "configs": [
     {
       "group": ":pleroma",
       "key": "Pleroma.Upload",
@@ -836,13 +960,14 @@ config :quack,
     - 400 Bad Request `"To use this endpoint you need to enable configuration from database."`
 ```json
 {
-  configs: [
+  "configs": [
     {
       "group": ":pleroma",
       "key": "Pleroma.Upload",
       "value": [...]
      }
-  ]
+  ],
+  "need_reboot": true
 }
 ```
 
@@ -931,3 +1056,20 @@ Loads json generated from `config/descriptions.exs`.
 - Params:
   - `nicknames`
 - Response: Array of user nicknames
+
+## `GET /api/pleroma/admin/stats`
+
+### Stats
+
+- Response:
+
+```json
+{
+  "status_visibility": {
+    "direct": 739,
+    "private": 9,
+    "public": 17,
+    "unlisted": 14
+  }
+}
+```

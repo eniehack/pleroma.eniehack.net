@@ -3,7 +3,110 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [2.0.4] - 2020-05-10
+
+### Security
+- AP C2S: Fix a potential DoS by creating nonsensical objects that break timelines
+
+### Fixed
+- Peertube user lookups not working
+- `InsertSkeletonsForDeletedUsers` migration failing on some instances
+- Healthcheck reporting the number of memory currently used, rather than allocated in total
+- LDAP not being usable in OTP releases
+- Default apache configuration having tls chain issues
+
+### Upgrade notes
+
+#### Apache only
+
+1. Remove the following line from your config:
+```
+    SSLCertificateFile      /etc/letsencrypt/live/${servername}/cert.pem
+```
+
+#### Everyone
+
+1. Restart Pleroma
+
+## [2.0.3] - 2020-05-02
+
+### Security
+- Disallow re-registration of previously deleted users, which allowed viewing direct messages addressed to them
+- Mastodon API: Fix `POST /api/v1/follow_requests/:id/authorize` allowing to force a follow from a local user even if they didn't request to follow
+- CSP: Sandbox uploads
+
+### Fixed
+- Notifications from blocked domains
+- Potential federation issues with Mastodon versions before 3.0.0
+- HTTP Basic Authentication permissions issue
+- Follow/Block imports not being able to find the user if the nickname started with an `@`
+- Instance stats counting internal users
+- Inability to run a From Source release without git
+- ObjectAgePolicy didn't filter out old messages
+- `blob:` urls not being allowed by CSP
+
+### Added
+- NodeInfo: ObjectAgePolicy settings to the `federation` list.
+- Follow request notifications
+<details>
+  <summary>API Changes</summary>
+- Admin API: `GET /api/pleroma/admin/need_reboot`.
+</details>
+
+### Upgrade notes
+
+1. Restart Pleroma
+2. Run database migrations (inside Pleroma directory):
+  - OTP: `./bin/pleroma_ctl migrate`
+  - From Source: `mix ecto.migrate`
+
+## [2.0.2] - 2020-04-08
+### Added
+- Support for Funkwhale's `Audio` activity
+- Admin API: `PATCH /api/pleroma/admin/users/:nickname/update_credentials`
+
+### Fixed
+- Blocked/muted users still generating push notifications
+- Input textbox for bio ignoring newlines
+- OTP: Inability to use PostgreSQL databases with SSL
+- `user delete_activities` breaking when trying to delete already deleted posts
+- Incorrect URL for Funkwhale channels
+
+### Upgrade notes
+1. Restart Pleroma
+
+## [2.0.1] - 2020-03-15
+### Security
+- Static-FE: Fix remote posts not being sanitized
+
+### Fixed
+- Rate limiter crashes when there is no explicitly specified ip in the config
+- 500 errors when no `Accept` header is present if Static-FE is enabled
+- Instance panel not being updated immediately due to wrong `Cache-Control` headers
+- Statuses posted with BBCode/Markdown having unncessary newlines in Pleroma-FE
+- OTP: Fix some settings not being migrated to in-database config properly
+- No `Cache-Control` headers on attachment/media proxy requests
+- Character limit enforcement being off by 1
+- Mastodon Streaming API: hashtag timelines not working
+
+### Changed
+- BBCode and Markdown formatters will no longer return any `\n` and only use `<br/>` for newlines
+- Mastodon API: Allow registration without email if email verification is not enabled
+
+### Upgrade notes
+#### Nginx only
+1. Remove `proxy_ignore_headers Cache-Control;` and `proxy_hide_header  Cache-Control;` from your config.
+
+#### Everyone
+1. Run database migrations (inside Pleroma directory):
+  - OTP: `./bin/pleroma_ctl migrate`
+  - From Source: `mix ecto.migrate`
+2. Restart Pleroma
+
+## [2.0.0] - 2019-03-08
+### Security
+- Mastodon API: Fix being able to request enourmous amount of statuses in timelines leading to DoS. Now limited to 40 per request.
+
 ### Removed
 - **Breaking**: Removed 1.0+ deprecated configurations `Pleroma.Upload, :strip_exif` and `:instance, :dedupe_media`
 - **Breaking**: OStatus protocol support
@@ -35,6 +138,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Rate limiter is now disabled for localhost/socket (unless remoteip plug is enabled)
 - Logger: default log level changed from `warn` to `info`.
 - Config mix task `migrate_to_db` truncates `config` table before migrating the config file.
+- Allow account registration without an email
+- Default to `prepare: :unnamed` in the database configuration.
+- Instance stats are now loaded on startup instead of being empty until next hourly job.
 <details>
   <summary>API Changes</summary>
 
@@ -56,6 +162,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Admin API: Render whole status in grouped reports
 - Mastodon API: User timelines will now respect blocks, unless you are getting the user timeline of somebody you blocked (which would be empty otherwise).
 - Mastodon API: Favoriting / Repeating a post multiple times will now return the identical response every time. Before, executing that action twice would return an error ("already favorited") on the second try.
+- Mastodon API: Limit timeline requests to 3 per timeline per 500ms per user/ip by default.
+- Admin API: `PATCH /api/pleroma/admin/users/:nickname/credentials` and `GET /api/pleroma/admin/users/:nickname/credentials`
 </details>
 
 ### Added
@@ -72,7 +180,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - User notification settings: Add `privacy_option` option.
 - Support for custom Elixir modules (such as MRF policies)
 - User settings: Add _This account is a_ option.
+- A new users admin digest email
 - OAuth: admin scopes support (relevant setting: `[:auth, :enforce_oauth_admin_scope_usage]`).
+- Add an option `authorized_fetch_mode` to require HTTP signatures for AP fetches.
+- ActivityPub: support for `replies` collection (output for outgoing federation & fetching on incoming federation).
+- Mix task to refresh counter cache (`mix pleroma.refresh_counter_cache`)
 <details>
   <summary>API Changes</summary>
 
@@ -100,6 +212,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Configuration: `feed` option for user atom feed.
 - Pleroma API: Add Emoji reactions
 - Admin API: Add `/api/pleroma/admin/instances/:instance/statuses` - lists all statuses from a given instance
+- Admin API: Add `/api/pleroma/admin/users/:nickname/statuses` - lists all statuses from a given user
 - Admin API: `PATCH /api/pleroma/users/confirm_email` to confirm email for multiple users, `PATCH /api/pleroma/users/resend_confirmation_email` to resend confirmation email for multiple users
 - ActivityPub: Configurable `type` field of the actors.
 - Mastodon API: `/api/v1/accounts/:id` has `source/pleroma/actor_type` field.
@@ -114,6 +227,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Configuration: `feed.logo` option for tag feed.
 - Tag feed: `/tags/:tag.rss` - list public statuses by hashtag.
 - Mastodon API: Add `reacted` property to `emoji_reactions`
+- Pleroma API: Add reactions for a single emoji.
+- ActivityPub: `[:activitypub, :note_replies_output_limit]` setting sets the number of note self-replies to output on outgoing federation.
+- Admin API: `GET /api/pleroma/admin/stats` to get status count by visibility scope
+- Admin API: `GET /api/pleroma/admin/statuses` - list all statuses (accepts `godmode` and `local_only`)
 </details>
 
 ### Fixed
@@ -134,6 +251,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Admin API: Error when trying to update reports in the "old" format
 - Mastodon API: Marking a conversation as read (`POST /api/v1/conversations/:id/read`) now no longer brings it to the top in the user's direct conversation list
 </details>
+
+## [1.1.9] - 2020-02-10
+### Fixed
+- OTP: Inability to set the upload limit (again)
+- Not being able to pin polls
+- Streaming API: incorrect handling of reblog mutes
+- Rejecting the user when field length limit is exceeded
+- OpenGraph provider: html entities in descriptions
+
+## [1.1.8] - 2020-01-10
+### Fixed
+- Captcha generation issues
+- Returned Kocaptcha endpoint to configuration
+- Captcha validity is now 5 minutes
+
+## [1.1.7] - 2019-12-13
+### Fixed
+- OTP: Inability to set the upload limit
+- OTP: Inability to override node name/distribution type to run 2 Pleroma instances on the same machine
+
+### Added
+- Integrated captcha provider
+
+### Changed
+- Captcha enabled by default
+- Default Captcha provider changed from `Pleroma.Captcha.Kocaptcha` to `Pleroma.Captcha.Native`
+- Better `Cache-Control` header for static content
+
+### Bundled Pleroma-FE Changes
+#### Added
+- Icons in the navigation panel
+
+#### Fixed
+- Improved support unauthenticated view of private instances
+
+#### Removed
+- Whitespace hack on empty post content
 
 ## [1.1.6] - 2019-11-19
 ### Fixed

@@ -4,7 +4,7 @@ defmodule Pleroma.Mixfile do
   def project do
     [
       app: :pleroma,
-      version: version("1.1.50"),
+      version: version("2.0.4"),
       elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -63,7 +63,15 @@ defmodule Pleroma.Mixfile do
   def application do
     [
       mod: {Pleroma.Application, []},
-      extra_applications: [:logger, :runtime_tools, :comeonin, :quack, :fast_sanitize],
+      extra_applications: [
+        :logger,
+        :runtime_tools,
+        :comeonin,
+        :quack,
+        :fast_sanitize,
+        :ssl,
+        :eldap
+      ],
       included_applications: [:ex_syslogger]
     ]
   end
@@ -117,7 +125,7 @@ defmodule Pleroma.Mixfile do
       {:html_entities, "~> 0.5", override: true},
       {:phoenix_html, "~> 2.10"},
       {:calendar, "~> 0.17.4"},
-      {:cachex, "~> 3.0.2"},
+      {:cachex, "~> 3.2"},
       {:poison, "~> 3.0", override: true},
       {:tesla, "~> 1.3", override: true},
       {:jason, "~> 1.0"},
@@ -126,7 +134,7 @@ defmodule Pleroma.Mixfile do
       {:ex_aws_s3, "~> 2.0"},
       {:sweet_xml, "~> 0.6.6"},
       {:earmark, "~> 1.3"},
-      {:bbcode, "~> 0.1.1"},
+      {:bbcode_pleroma, "~> 0.2.0"},
       {:ex_machina, "~> 2.3", only: :test},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:mock, "~> 0.3.3", only: :test},
@@ -139,8 +147,8 @@ defmodule Pleroma.Mixfile do
       {:phoenix_swoosh, "~> 0.2"},
       {:gen_smtp, "~> 0.13"},
       {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test},
-      {:floki, "~> 0.23.0"},
       {:ex_syslogger, "~> 1.4"},
+      {:floki, "~> 0.25"},
       {:timex, "~> 3.5"},
       {:ueberauth, "~> 0.4"},
       {:auto_linker,
@@ -203,19 +211,26 @@ defmodule Pleroma.Mixfile do
     identifier_filter = ~r/[^0-9a-z\-]+/i
 
     # Pre-release version, denoted from patch version with a hyphen
+    {tag, tag_err} =
+      System.cmd("git", ["describe", "--tags", "--abbrev=0"], stderr_to_stdout: true)
+
+    {describe, describe_err} = System.cmd("git", ["describe", "--tags", "--abbrev=8"])
+    {commit_hash, commit_hash_err} = System.cmd("git", ["rev-parse", "--short", "HEAD"])
+
     git_pre_release =
-      with {tag, 0} <-
-             System.cmd("git", ["describe", "--tags", "--abbrev=0"], stderr_to_stdout: true),
-           {describe, 0} <- System.cmd("git", ["describe", "--tags", "--abbrev=8"]) do
-        describe
-        |> String.trim()
-        |> String.replace(String.trim(tag), "")
-        |> String.trim_leading("-")
-        |> String.trim()
-      else
-        _ ->
-          {commit_hash, 0} = System.cmd("git", ["rev-parse", "--short", "HEAD"])
+      cond do
+        tag_err == 0 and describe_err == 0 ->
+          describe
+          |> String.trim()
+          |> String.replace(String.trim(tag), "")
+          |> String.trim_leading("-")
+          |> String.trim()
+
+        commit_hash_err == 0 ->
           "0-g" <> String.trim(commit_hash)
+
+        true ->
+          ""
       end
 
     # Branch name as pre-release version component, denoted with a dot
@@ -233,6 +248,8 @@ defmodule Pleroma.Mixfile do
           |> String.replace(identifier_filter, "-")
 
         branch_name
+      else
+        _ -> "stable"
       end
 
     build_name =

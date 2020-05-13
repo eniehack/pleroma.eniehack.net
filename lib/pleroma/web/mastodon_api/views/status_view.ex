@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastodonAPI.StatusView do
@@ -175,9 +175,11 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
 
     expires_at =
       with true <- client_posted_this_activity,
-           expiration when not is_nil(expiration) <-
+           %ActivityExpiration{scheduled_at: scheduled_at} <-
              ActivityExpiration.get_by_activity_id(activity.id) do
-        expiration.scheduled_at
+        scheduled_at
+      else
+        _ -> nil
       end
 
     thread_muted? =
@@ -419,7 +421,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
   end
 
   def render_content(%{data: %{"type" => object_type}} = object)
-      when object_type in ["Video", "Event"] do
+      when object_type in ["Video", "Event", "Audio"] do
     with name when not is_nil(name) and name != "" <- object.data["name"] do
       "<p><a href=\"#{object.data["id"]}\">#{name}</a></p>#{object.data["content"]}"
     else

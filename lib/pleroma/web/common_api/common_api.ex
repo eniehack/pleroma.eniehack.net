@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.CommonAPI do
@@ -7,6 +7,7 @@ defmodule Pleroma.Web.CommonAPI do
   alias Pleroma.ActivityExpiration
   alias Pleroma.Conversation.Participation
   alias Pleroma.FollowingRelationship
+  alias Pleroma.Notification
   alias Pleroma.Object
   alias Pleroma.ThreadMute
   alias Pleroma.User
@@ -39,10 +40,10 @@ defmodule Pleroma.Web.CommonAPI do
   end
 
   def accept_follow_request(follower, followed) do
-    with {:ok, follower} <- User.follow(follower, followed),
-         %Activity{} = follow_activity <- Utils.fetch_latest_follow(follower, followed),
+    with %Activity{} = follow_activity <- Utils.fetch_latest_follow(follower, followed),
+         {:ok, follower} <- User.follow(follower, followed),
          {:ok, follow_activity} <- Utils.update_follow_state_for_all(follow_activity, "accept"),
-         {:ok, _relationship} <- FollowingRelationship.update(follower, followed, "accept"),
+         {:ok, _relationship} <- FollowingRelationship.update(follower, followed, :follow_accept),
          {:ok, _activity} <-
            ActivityPub.accept(%{
              to: [follower.ap_id],
@@ -57,7 +58,8 @@ defmodule Pleroma.Web.CommonAPI do
   def reject_follow_request(follower, followed) do
     with %Activity{} = follow_activity <- Utils.fetch_latest_follow(follower, followed),
          {:ok, follow_activity} <- Utils.update_follow_state_for_all(follow_activity, "reject"),
-         {:ok, _relationship} <- FollowingRelationship.update(follower, followed, "reject"),
+         {:ok, _relationship} <- FollowingRelationship.update(follower, followed, :follow_reject),
+         {:ok, _notifications} <- Notification.dismiss(follow_activity),
          {:ok, _activity} <-
            ActivityPub.reject(%{
              to: [follower.ap_id],
@@ -70,20 +72,22 @@ defmodule Pleroma.Web.CommonAPI do
   end
 
   def delete(activity_id, user) do
-    with %Activity{data: %{"object" => _}} = activity <-
-           Activity.get_by_id_with_object(activity_id),
+    with {_, %Activity{data: %{"object" => _}} = activity} <-
+           {:find_activity, Activity.get_by_id_with_object(activity_id)},
          %Object{} = object <- Object.normalize(activity),
          true <- User.superuser?(user) || user.ap_id == object.data["actor"],
          {:ok, _} <- unpin(activity_id, user),
          {:ok, delete} <- ActivityPub.delete(object) do
       {:ok, delete}
     else
+      {:find_activity, _} -> {:error, :not_found}
       _ -> {:error, dgettext("errors", "Could not delete")}
     end
   end
 
-  def repeat(id_or_ap_id, user, params \\ %{}) do
-    with %Activity{} = activity <- get_by_id_or_ap_id(id_or_ap_id),
+  def repeat(id, user, params \\ %{}) do
+    with {_, %Activity{data: %{"type" => "Create"}} = activity} <-
+           {:find_activity, Activity.get_by_id(id)},
          object <- Object.normalize(activity),
          announce_activity <- Utils.get_existing_announce(user.ap_id, object),
          public <- public_announce?(object, params) do
@@ -93,21 +97,24 @@ defmodule Pleroma.Web.CommonAPI do
         ActivityPub.announce(user, object, nil, true, public)
       end
     else
+      {:find_activity, _} -> {:error, :not_found}
       _ -> {:error, dgettext("errors", "Could not repeat")}
     end
   end
 
-  def unrepeat(id_or_ap_id, user) do
-    with %Activity{} = activity <- get_by_id_or_ap_id(id_or_ap_id) do
+  def unrepeat(id, user) do
+    with {_, %Activity{data: %{"type" => "Create"}} = activity} <-
+           {:find_activity, Activity.get_by_id(id)} do
       object = Object.normalize(activity)
       ActivityPub.unannounce(user, object)
     else
+      {:find_activity, _} -> {:error, :not_found}
       _ -> {:error, dgettext("errors", "Could not unrepeat")}
     end
   end
 
-  def favorite(id_or_ap_id, user) do
-    with %Activity{} = activity <- get_by_id_or_ap_id(id_or_ap_id),
+  def favorite(id, user) do
+    with {_, %Activity{} = activity} <- {:find_activity, Activity.get_by_id(id)},
          object <- Object.normalize(activity),
          like_activity <- Utils.get_existing_like(user.ap_id, object) do
       if like_activity do
@@ -116,15 +123,18 @@ defmodule Pleroma.Web.CommonAPI do
         ActivityPub.like(user, object)
       end
     else
+      {:find_activity, _} -> {:error, :not_found}
       _ -> {:error, dgettext("errors", "Could not favorite")}
     end
   end
 
-  def unfavorite(id_or_ap_id, user) do
-    with %Activity{} = activity <- get_by_id_or_ap_id(id_or_ap_id) do
+  def unfavorite(id, user) do
+    with {_, %Activity{data: %{"type" => "Create"}} = activity} <-
+           {:find_activity, Activity.get_by_id(id)} do
       object = Object.normalize(activity)
       ActivityPub.unlike(user, object)
     else
+      {:find_activity, _} -> {:error, :not_found}
       _ -> {:error, dgettext("errors", "Could not unfavorite")}
     end
   end
@@ -311,12 +321,12 @@ defmodule Pleroma.Web.CommonAPI do
     })
   end
 
-  def pin(id_or_ap_id, %{ap_id: user_ap_id} = user) do
+  def pin(id, %{ap_id: user_ap_id} = user) do
     with %Activity{
            actor: ^user_ap_id,
            data: %{"type" => "Create"},
            object: %Object{data: %{"type" => object_type}}
-         } = activity <- get_by_id_or_ap_id(id_or_ap_id),
+         } = activity <- Activity.get_by_id_with_object(id),
          true <- object_type in ["Note", "Article", "Question"],
          true <- Visibility.is_public?(activity),
          {:ok, _user} <- User.add_pinnned_activity(user, activity) do
@@ -327,8 +337,8 @@ defmodule Pleroma.Web.CommonAPI do
     end
   end
 
-  def unpin(id_or_ap_id, user) do
-    with %Activity{} = activity <- get_by_id_or_ap_id(id_or_ap_id),
+  def unpin(id, user) do
+    with %Activity{data: %{"type" => "Create"}} = activity <- Activity.get_by_id(id),
          {:ok, _user} <- User.remove_pinnned_activity(user, activity) do
       {:ok, activity}
     else

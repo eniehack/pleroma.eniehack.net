@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.MastoFEController do
@@ -17,7 +17,7 @@ defmodule Pleroma.Web.MastoFEController do
     when action == :index
   )
 
-  plug(Pleroma.Plugs.EnsurePublicOrAuthenticatedPlug when action != :index)
+  plug(Pleroma.Plugs.EnsurePublicOrAuthenticatedPlug when action not in [:index, :manifest])
 
   @doc "GET /web/*path"
   def index(%{assigns: %{user: user, token: token}} = conn, _params)
