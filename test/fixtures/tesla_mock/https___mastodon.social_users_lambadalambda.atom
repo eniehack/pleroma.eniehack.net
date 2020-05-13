@@ -336,7 +336,7 @@
         <link rel="header" type="image/jpeg" media:width="700" media:height="335" href="https://files.mastodon.social/accounts/headers/000/036/953/original/2229d0e3f129fe8c.jpg"/>
         <poco:preferredUsername>0xroy</poco:preferredUsername>
         <poco:displayName>「R O Y  🍵 B O S」</poco:displayName>
-        <poco:note>ta caution weeb | discussions privées : https://💌.0xroy.me</poco:note>
+        <poco:note>ta caution weeb | discussions privées : https://.0xroy.me</poco:note>
         <mastodon:scope>public</mastodon:scope>
       </author>
       <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>

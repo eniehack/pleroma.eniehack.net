@@ -77,7 +77,7 @@
   <activity:object-type>http://activitystrea.ms/schema/1.0/person</activity:object-type>
   <id>https://mastodon.cloud/users/ohyran</id>
   <title>Jens Reuterberg</title>
-  <summary>RPG-nerd, illustrator, Open Source enthusiast, KDE dude, designer and gay lefty. Might be a cliché - but we will soon find out!</summary>
+  <summary>RPG-nerd, illustrator, Open Source enthusiast, KDE dude, designer and gay lefty. Might be a clich辿 - but we will soon find out!</summary>
   <link rel="alternate" type="text/html" href="https://mastodon.cloud/@ohyran"/>
   <link rel="avatar" type="image/jpeg" media:width="120" media:height="120" href="https://shitposter.club/avatar/14357-original-20170505110123.jpeg"/>
   <link rel="avatar" type="image/jpeg" media:width="96" media:height="96" href="https://shitposter.club/avatar/14357-96-20170505110757.jpeg"/>
@@ -85,7 +85,7 @@
   <link rel="avatar" type="image/jpeg" media:width="24" media:height="24" href="https://shitposter.club/avatar/14357-24-20170505110757.jpeg"/>
   <poco:preferredUsername>ohyran</poco:preferredUsername>
   <poco:displayName>Jens Reuterberg</poco:displayName>
-  <poco:note>RPG-nerd, illustrator, Open Source enthusiast, KDE dude, designer and gay lefty. Might be a cliché - but we will soon find out!</poco:note>
+  <poco:note>RPG-nerd, illustrator, Open Source enthusiast, KDE dude, designer and gay lefty. Might be a clich辿 - but we will soon find out!</poco:note>
  </activity:object>
  <link rel="ostatus:conversation" href="https://shitposter.club/conversation/1390971"/>
  <ostatus:conversation href="https://shitposter.club/conversation/1390971" local_id="1390971" ref="tag:shitposter.club,2017-05-05:objectType=thread:nonce=937151d4825a85bf">tag:shitposter.club,2017-05-05:objectType=thread:nonce=937151d4825a85bf</ostatus:conversation>

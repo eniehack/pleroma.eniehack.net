@@ -1,9 +1,9 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2020 Pleroma Authors <https://pleroma.social/>
+# Copyright 息 2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 #
 # This file is derived from Earmark, under the following copyright:
-# Copyright © 2014 Dave Thomas, The Pragmatic Programmers
+# Copyright 息 2014 Dave Thomas, The Pragmatic Programmers
 # SPDX-License-Identifier: Apache-2.0
 # Upstream: https://github.com/pragdave/earmark/blob/master/lib/earmark/html_renderer.ex
 defmodule Pleroma.EarmarkRenderer do

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:thr="http://purl.org/syndication/thread/1.0" xmlns:activity="http://activitystrea.ms/spec/1.0/" xmlns:poco="http://portablecontacts.net/spec/1.0" xmlns:media="http://purl.org/syndication/atommedia" xmlns:ostatus="http://ostatus.org/schema/1.0" xmlns:mastodon="http://mastodon.social/schema/1.0">
     <id>https://mastodon.social/users/emelie.atom</id>
-    <title>emelie 🎨</title>
+    <title>emelie </title>
     <subtitle>23 / #Sweden / #Artist / #Equestrian / #GameDev
 
-If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</subtitle>
+If I ain't spending time with my pets, I'm probably drawing. 清 棲 晴</subtitle>
     <updated>2019-02-04T20:22:19Z</updated>
     <logo>https://files.mastodon.social/accounts/avatars/000/015/657/original/e7163f98280da1a4.png</logo>
     <author>
@@ -13,15 +13,15 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</sub
         <uri>https://mastodon.social/users/emelie</uri>
         <name>emelie</name>
         <email>emelie@mastodon.social</email>
-        <summary type="html">&lt;p&gt;23 / &lt;a href="https://mastodon.social/tags/sweden" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;Sweden&lt;/span&gt;&lt;/a&gt; / &lt;a href="https://mastodon.social/tags/artist" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;Artist&lt;/span&gt;&lt;/a&gt; / &lt;a href="https://mastodon.social/tags/equestrian" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;Equestrian&lt;/span&gt;&lt;/a&gt; / &lt;a href="https://mastodon.social/tags/gamedev" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;GameDev&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;If I ain&amp;apos;t spending time with my pets, I&amp;apos;m probably drawing. 🐴 🐱 🐰&lt;/p&gt;</summary>
+        <summary type="html">&lt;p&gt;23 / &lt;a href="https://mastodon.social/tags/sweden" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;Sweden&lt;/span&gt;&lt;/a&gt; / &lt;a href="https://mastodon.social/tags/artist" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;Artist&lt;/span&gt;&lt;/a&gt; / &lt;a href="https://mastodon.social/tags/equestrian" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;Equestrian&lt;/span&gt;&lt;/a&gt; / &lt;a href="https://mastodon.social/tags/gamedev" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;GameDev&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;If I ain&amp;apos;t spending time with my pets, I&amp;apos;m probably drawing. 清 棲 晴&lt;/p&gt;</summary>
         <link rel="alternate" type="text/html" href="https://mastodon.social/@emelie"/>
         <link rel="avatar" type="image/png" media:width="120" media:height="120" href="https://files.mastodon.social/accounts/avatars/000/015/657/original/e7163f98280da1a4.png"/>
         <link rel="header" type="image/png" media:width="700" media:height="335" href="https://files.mastodon.social/accounts/headers/000/015/657/original/847f331f3dd9e38b.png"/>
         <poco:preferredUsername>emelie</poco:preferredUsername>
-        <poco:displayName>emelie 🎨</poco:displayName>
+        <poco:displayName>emelie 耳</poco:displayName>
         <poco:note>23 / #Sweden / #Artist / #Equestrian / #GameDev
 
-If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poco:note>
+If I ain't spending time with my pets, I'm probably drawing. 清 棲 晴</poco:note>
         <mastodon:scope>public</mastodon:scope>
     </author>
     <link rel="alternate" type="text/html" href="https://mastodon.social/@emelie"/>
@@ -51,7 +51,7 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poc
         <activity:object-type>http://activitystrea.ms/schema/1.0/comment</activity:object-type>
         <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
         <link rel="alternate" type="application/activity+json" href="https://mastodon.social/users/emelie/statuses/101849626603073336"/>
-        <content type="html" xml:lang="sv">&lt;p&gt;&lt;span class="h-card"&gt;&lt;a href="https://mastodon.social/@Fergant" class="u-url mention"&gt;@&lt;span&gt;Fergant&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; Dom är i stort sett religiös skrift vid det här laget 👏👏&lt;/p&gt;&lt;p&gt;har dock bara läst svenska översättningen, kanske är dags att jag läser dom på engelska&lt;/p&gt;</content>
+        <content type="html" xml:lang="sv">&lt;p&gt;&lt;span class="h-card"&gt;&lt;a href="https://mastodon.social/@Fergant" class="u-url mention"&gt;@&lt;span&gt;Fergant&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; Dom テ、r i stort sett religiテカs skrift vid det hテ、r laget 聡聡&lt;/p&gt;&lt;p&gt;har dock bara lテ、st svenska テカversテ、ttningen, kanske テ、r dags att jag lテ、ser dom pテ・ engelska&lt;/p&gt;</content>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/person" href="https://mastodon.social/users/Fergant"/>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/collection" href="http://activityschema.org/collection/public"/>
         <mastodon:scope>public</mastodon:scope>
@@ -68,7 +68,7 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poc
         <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>
         <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
         <link rel="alternate" type="application/activity+json" href="https://mastodon.social/users/emelie/statuses/101849580030237068"/>
-        <content type="html" xml:lang="en">&lt;p&gt;What&amp;apos;s you people&amp;apos;s favourite fantasy books? Give me some hot tips 🌞&lt;/p&gt;</content>
+        <content type="html" xml:lang="en">&lt;p&gt;What&amp;apos;s you people&amp;apos;s favourite fantasy books? Give me some hot tips 捲&lt;/p&gt;</content>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/collection" href="http://activityschema.org/collection/public"/>
         <mastodon:scope>public</mastodon:scope>
         <link rel="alternate" type="text/html" href="https://mastodon.social/@emelie/101849580030237068"/>
@@ -83,7 +83,7 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poc
         <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>
         <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
         <link rel="alternate" type="application/activity+json" href="https://mastodon.social/users/emelie/statuses/101849550599949363"/>
-        <content type="html" xml:lang="en">&lt;p&gt;Stick them legs out 💃 &lt;a href="https://mastodon.social/tags/mastocats" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;mastocats&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</content>
+        <content type="html" xml:lang="en">&lt;p&gt;Stick them legs out 茶 &lt;a href="https://mastodon.social/tags/mastocats" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;mastocats&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</content>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/collection" href="http://activityschema.org/collection/public"/>
         <category term="mastocats"/>
         <link rel="enclosure" type="image/jpeg" length="516384" href="https://files.mastodon.social/media_attachments/files/013/051/707/original/125a310abe9a34aa.jpeg"/>
@@ -100,7 +100,7 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poc
         <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>
         <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
         <link rel="alternate" type="application/activity+json" href="https://mastodon.social/users/emelie/statuses/101849191533152720"/>
-        <content type="html" xml:lang="en">&lt;p&gt;long 🐱 &lt;a href="https://mastodon.social/tags/mastocats" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;mastocats&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</content>
+        <content type="html" xml:lang="en">&lt;p&gt;long 棲 &lt;a href="https://mastodon.social/tags/mastocats" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;mastocats&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</content>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/collection" href="http://activityschema.org/collection/public"/>
         <category term="mastocats"/>
         <link rel="enclosure" type="image/jpeg" length="305208" href="https://files.mastodon.social/media_attachments/files/013/049/940/original/f2dbbfe7de3a17d2.jpeg"/>
@@ -117,7 +117,7 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poc
         <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>
         <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
         <link rel="alternate" type="application/activity+json" href="https://mastodon.social/users/emelie/statuses/101849165031453009"/>
-        <content type="html" xml:lang="en">&lt;p&gt;You gotta take whatever bellyrubbing opportunity you can get before she changes her mind 🦁 &lt;a href="https://mastodon.social/tags/mastocats" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;mastocats&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</content>
+        <content type="html" xml:lang="en">&lt;p&gt;You gotta take whatever bellyrubbing opportunity you can get before she changes her mind ヲ&lt;a href="https://mastodon.social/tags/mastocats" class="mention hashtag" rel="tag"&gt;#&lt;span&gt;mastocats&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</content>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/collection" href="http://activityschema.org/collection/public"/>
         <category term="mastocats"/>
         <link rel="enclosure" type="video/mp4" length="9838915" href="https://files.mastodon.social/media_attachments/files/013/049/816/original/e7831178a5e0d6d4.mp4"/>
@@ -261,7 +261,7 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poc
         <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>
         <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
         <link rel="alternate" type="application/activity+json" href="https://mastodon.social/users/emelie/statuses/101835878059204660"/>
-        <content type="html" xml:lang="en">&lt;p&gt;ååååhhh booi&lt;/p&gt;</content>
+        <content type="html" xml:lang="en">&lt;p&gt;奪奪奪奪hhh booi&lt;/p&gt;</content>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/collection" href="http://activityschema.org/collection/public"/>
         <mastodon:scope>public</mastodon:scope>
         <link rel="alternate" type="text/html" href="https://mastodon.social/@emelie/101835878059204660"/>
@@ -294,7 +294,7 @@ If I ain't spending time with my pets, I'm probably drawing. 🐴 🐱 🐰</poc
         <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
         <link rel="alternate" type="application/activity+json" href="https://mastodon.social/users/emelie/statuses/101835823138262290"/>
         <summary xml:lang="en">medical, fluids mention</summary>
-        <content type="html" xml:lang="en">&lt;p&gt;&lt;span class="h-card"&gt;&lt;a href="https://icosahedron.website/@Trev" class="u-url mention"&gt;@&lt;span&gt;Trev&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; *hugs* ✨&lt;/p&gt;</content>
+        <content type="html" xml:lang="en">&lt;p&gt;&lt;span class="h-card"&gt;&lt;a href="https://icosahedron.website/@Trev" class="u-url mention"&gt;@&lt;span&gt;Trev&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; *hugs* 笨ィ&lt;/p&gt;</content>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/person" href="https://icosahedron.website/users/Trev"/>
         <link rel="mentioned" ostatus:object-type="http://activitystrea.ms/schema/1.0/collection" href="http://activityschema.org/collection/public"/>
         <mastodon:scope>public</mastodon:scope>

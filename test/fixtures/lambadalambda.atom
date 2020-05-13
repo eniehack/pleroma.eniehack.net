@@ -48,7 +48,7 @@
         <link rel="header" type="image/jpeg" media:width="700" media:height="335" href="https://files.mastodon.social/accounts/headers/000/036/953/original/2229d0e3f129fe8c.jpg?1491381114"/>
         <poco:preferredUsername>0xroy</poco:preferredUsername>
         <poco:displayName>「R O Y  🍵 B O S」</poco:displayName>
-        <poco:note>ta caution weeb | discussions privées : &lt;a href="https://%F0%9F%92%8C.0xroy.me" rel="nofollow noopener"&gt;&lt;span class="invisible"&gt;https://&lt;/span&gt;&lt;span class=""&gt;💌.0xroy.me&lt;/span&gt;&lt;span class="invisible"&gt;&lt;/span&gt;&lt;/a&gt;</poco:note>
+        <poco:note>ta caution weeb | discussions privées : &lt;a href="https://%F0%9F%92%8C.0xroy.me" rel="nofollow noopener"&gt;&lt;span class="invisible"&gt;https://&lt;/span&gt;&lt;span class=""&gt;.0xroy.me&lt;/span&gt;&lt;span class="invisible"&gt;&lt;/span&gt;&lt;/a&gt;</poco:note>
         <mastodon:scope>public</mastodon:scope>
       </author>
       <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>
@@ -448,15 +448,15 @@
         <uri>https://awoo.space/users/Firstaide</uri>
         <name>Firstaide</name>
         <email>Firstaide@awoo.space</email>
-        <summary>A smol awoo account, for a smol autistic 💙
+        <summary>A smol awoo account, for a smol autistic 貯
 They/them please!
 NB/white/ace</summary>
         <link rel="alternate" type="text/html" href="https://awoo.space/@Firstaide"/>
         <link rel="avatar" type="image/png" media:width="120" media:height="120" href="https://files.mastodon.social/accounts/avatars/000/023/707/original/95e92639771fd225.png?1492022811"/>
         <link rel="header" type="image/jpeg" media:width="700" media:height="335" href="https://files.mastodon.social/accounts/headers/000/023/707/original/e98df174c26747be.jpg?1491667928"/>
         <poco:preferredUsername>Firstaide</poco:preferredUsername>
-        <poco:displayName>Miff🚑✨</poco:displayName>
-        <poco:note>A smol awoo account, for a smol autistic 💙
+        <poco:displayName>Miff囁笨ィ</poco:displayName>
+        <poco:note>A smol awoo account, for a smol autistic 貯
 They/them please!
 NB/white/ace</poco:note>
         <mastodon:scope>public</mastodon:scope>

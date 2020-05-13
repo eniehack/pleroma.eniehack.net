@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright 息 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Plugs.CacheTest do
@@ -174,13 +174,13 @@ defmodule Pleroma.Plugs.CacheTest do
        [
          {"cache-control", "max-age=0, private, must-revalidate"},
          {"content-type", "tea/iced; charset=utf-8"}
-       ], "🥤"}
+       ], ""}
 
     assert expected ==
              conn(:get, "/cofe")
              |> Cache.call(%{query_params: true, ttl: nil})
              |> put_resp_content_type("tea/iced")
-             |> send_resp(:im_a_teapot, "🥤")
+             |> send_resp(:im_a_teapot, "・、")
              |> sent_resp()
   end
 end

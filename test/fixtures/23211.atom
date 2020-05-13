@@ -175,7 +175,7 @@
 <entry>
  <id>tag:social.heldscal.la,2017-05-02:fave:23211:comment:2014060:2017-05-02T13:34:32+00:00</id>
  <title>Favorite</title>
- <content type="html">lambadalambda favorited something by gcarregues: &lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; Oh purée ! Ma vie en images !&lt;/p&gt;</content>
+ <content type="html">lambadalambda favorited something by gcarregues: &lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; Oh pur辿e ! Ma vie en images !&lt;/p&gt;</content>
  <link rel="alternate" type="text/html" href="https://social.heldscal.la/notice/2014147"/>
  <activity:verb>http://activitystrea.ms/schema/1.0/favorite</activity:verb>
  <published>2017-05-02T13:34:32+00:00</published>
@@ -184,7 +184,7 @@
   <activity:object-type>http://activitystrea.ms/schema/1.0/comment</activity:object-type>
   <id>tag:mastodon.etalab.gouv.fr,2017-05-02:objectId=55287:objectType=Status</id>
   <title>New comment by gcarregues</title>
-  <content type="html">&lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; Oh purée ! Ma vie en images !&lt;/p&gt;</content>
+  <content type="html">&lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; Oh pur辿e ! Ma vie en images !&lt;/p&gt;</content>
   <link rel="alternate" type="text/html" href="https://mastodon.etalab.gouv.fr/users/gcarregues/updates/4370"/>
   <status_net notice_id="2014060"></status_net>
  </activity:object>
@@ -413,7 +413,7 @@
 <entry>
  <id>tag:social.heldscal.la,2017-05-02:fave:23211:note:2012929:2017-05-02T12:01:25+00:00</id>
  <title>Favorite</title>
- <content type="html">lambadalambda favorited something by drkmttr: &lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; I checked out No Agenda because I saw you mention it several time. Sadly, I wasn't impressed. I'm all about varying perspectives but Adam and John basically just sound like resentful curmudgeons. It seems like their shtick is basically playing devil's advocate to everything to arouse some discontent. Just my two cents. 😉&lt;/p&gt;</content>
+ <content type="html">lambadalambda favorited something by drkmttr: &lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; I checked out No Agenda because I saw you mention it several time. Sadly, I wasn't impressed. I'm all about varying perspectives but Adam and John basically just sound like resentful curmudgeons. It seems like their shtick is basically playing devil's advocate to everything to arouse some discontent. Just my two cents. &lt;/p&gt;</content>
  <link rel="alternate" type="text/html" href="https://social.heldscal.la/notice/2012940"/>
  <activity:verb>http://activitystrea.ms/schema/1.0/favorite</activity:verb>
  <published>2017-05-02T12:01:25+00:00</published>
@@ -422,7 +422,7 @@
   <activity:object-type>http://activitystrea.ms/schema/1.0/note</activity:object-type>
   <id>tag:mstdn.io,2017-05-02:objectId=1310093:objectType=Status</id>
   <title>New note by drkmttr</title>
-  <content type="html">&lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; I checked out No Agenda because I saw you mention it several time. Sadly, I wasn't impressed. I'm all about varying perspectives but Adam and John basically just sound like resentful curmudgeons. It seems like their shtick is basically playing devil's advocate to everything to arouse some discontent. Just my two cents. 😉&lt;/p&gt;</content>
+  <content type="html">&lt;p&gt;&lt;span class=&quot;h-card&quot;&gt;&lt;a href=&quot;https://social.heldscal.la/lambadalambda&quot; class=&quot;u-url mention&quot;&gt;@&lt;span&gt;lambadalambda&lt;/span&gt;&lt;/a&gt;&lt;/span&gt; I checked out No Agenda because I saw you mention it several time. Sadly, I wasn't impressed. I'm all about varying perspectives but Adam and John basically just sound like resentful curmudgeons. It seems like their shtick is basically playing devil's advocate to everything to arouse some discontent. Just my two cents. &lt;/p&gt;</content>
   <link rel="alternate" type="text/html" href="https://mstdn.io/users/drkmttr/updates/35653"/>
   <status_net notice_id="2012929"></status_net>
  </activity:object>
@@ -463,7 +463,7 @@
 <entry>
  <id>tag:social.heldscal.la,2017-05-02:fave:23211:comment:2011332:2017-05-02T10:37:40+00:00</id>
  <title>Favorite</title>
- <content type="html">lambadalambda favorited something by moonman: @&lt;a href=&quot;https://social.heldscal.la/user/23211&quot; class=&quot;h-card mention&quot; title=&quot;Constance Variable&quot;&gt;lambadalambda&lt;/a&gt; &lt;a href=&quot;https://www.youtube.com/watch?v=mKLizztikRk&quot; title=&quot;https://www.youtube.com/watch?v=mKLizztikRk&quot; class=&quot;attachment&quot; rel=&quot;nofollow&quot;&gt;https://www.youtube.com/watch?v=mKLizztikRk&lt;/a&gt;</content>
+ <content type="html">lambadalambda favorited something by moonman: @&lt;a href=&quot;https://social.heldscal.la/user/23211&quot; class=&quot;h-card mention&quot; title=&quot;Constance Variable&quot;&gt;lambadalambda&lt;/a&gt;ツlt;a href=&quot;https://www.youtube.com/watch?v=mKLizztikRk&quot; title=&quot;https://www.youtube.com/watch?v=mKLizztikRk&quot; class=&quot;attachment&quot; rel=&quot;nofollow&quot;&gt;https://www.youtube.com/watch?v=mKLizztikRk&lt;/a&gt;</content>
  <link rel="alternate" type="text/html" href="https://social.heldscal.la/notice/2012148"/>
  <activity:verb>http://activitystrea.ms/schema/1.0/favorite</activity:verb>
  <published>2017-05-02T10:37:40+00:00</published>

@@ -94,7 +94,7 @@
 
       .scope:before {
         color: #b9b9ba;
-        content: "✔\fe0e";
+        content: "笨能fe0e";
         margin-left: 1em;
         margin-right: 1em;
       }
@@ -201,7 +201,7 @@
 
         .scope:first-child:before {
           margin-left: 1em;
-          content: "✔\fe0e";
+          content: "笨能fe0e";
         }
 
         .scope:after {

@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright 息 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
@@ -930,7 +930,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
       object = Object.normalize(activity)
 
       with_mock(Utils, [:passthrough], maybe_federate: fn _ -> {:error, :reverted} end) do
-        assert {:error, :reverted} = ActivityPub.react_with_emoji(reactor, object, "😀")
+        assert {:error, :reverted} = ActivityPub.react_with_emoji(reactor, object, "")
       end
 
       object = Object.get_by_ap_id(object.data["id"])
@@ -947,7 +947,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
       {:ok, activity} = CommonAPI.post(user, %{"status" => "YASSSS queen slay"})
       assert object = Object.normalize(activity)
 
-      {:ok, reaction_activity, _object} = ActivityPub.react_with_emoji(reactor, object, "🔥")
+      {:ok, reaction_activity, _object} = ActivityPub.react_with_emoji(reactor, object, "櫨")
 
       assert called(Federator.publish(reaction_activity))
 
@@ -963,7 +963,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
       {:ok, activity} = CommonAPI.post(user, %{"status" => "YASSSS queen slay"})
       assert object = Object.normalize(activity)
 
-      {:ok, reaction_activity, _object} = ActivityPub.react_with_emoji(reactor, object, "🔥")
+      {:ok, reaction_activity, _object} = ActivityPub.react_with_emoji(reactor, object, "櫨")
 
       {:ok, unreaction_activity, _object} =
         ActivityPub.unreact_with_emoji(reactor, reaction_activity.data["id"])
@@ -981,7 +981,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
       {:ok, activity} = CommonAPI.post(user, %{"status" => "Status"})
       object = Object.normalize(activity)
 
-      {:ok, reaction_activity, _object} = ActivityPub.react_with_emoji(reactor, object, "😀")
+      {:ok, reaction_activity, _object} = ActivityPub.react_with_emoji(reactor, object, "")
 
       with_mock(Utils, [:passthrough], maybe_federate: fn _ -> {:error, :reverted} end) do
         assert {:error, :reverted} =
@@ -991,7 +991,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
       object = Object.get_by_ap_id(object.data["id"])
 
       assert object.data["reaction_count"] == 1
-      assert object.data["reactions"] == [["😀", [reactor.ap_id]]]
+      assert object.data["reactions"] == [["", [reactor.ap_id]]]
     end
   end
 

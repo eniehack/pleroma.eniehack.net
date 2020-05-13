@@ -1,18 +1,18 @@
-# Pleroman asennus OpenBSD:llä
+# Pleroman asennus OpenBSD:ll辰
 
 Tarvitset:
 * Oman domainin
 * OpenBSD 6.3 -serverin
-* Auttavan ymmärryksen unix-järjestelmistä
+* Auttavan ymm辰rryksen unix-j辰rjestelmist辰
 
-Komennot, joiden edessä on '#', tulee ajaa käyttäjänä `root`. Tämä on
-suositeltavaa tehdä komennon `doas` avulla, katso `doas (1)` ja `doas.conf (5)`.
-Tästä eteenpäin oletuksena on, että domain "esimerkki.com" osoittaa
+Komennot, joiden edess辰 on '#', tulee ajaa k辰ytt辰j辰n辰 `root`. T辰m辰 on
+suositeltavaa tehd辰 komennon `doas` avulla, katso `doas (1)` ja `doas.conf (5)`.
+T辰st辰 eteenp辰in oletuksena on, ett辰 domain "esimerkki.com" osoittaa
 serverin IP-osoitteeseen.
 
 Jos asennuksen kanssa on ongelmia, IRC-kanava #pleroma Freenodessa tai
-Matrix-kanava #freenode_#pleroma:matrix.org ovat hyviä paikkoja löytää apua
-(englanniksi), `/msg eal kukkuu` jos haluat välttämättä puhua härmää.
+Matrix-kanava #freenode_#pleroma:matrix.org ovat hyvi辰 paikkoja l旦yt辰辰 apua
+(englanniksi), `/msg eal kukkuu` jos haluat v辰ltt辰m辰tt辰 puhua h辰rm辰辰.
 
 Asenna tarvittava ohjelmisto:
 
@@ -28,21 +28,21 @@ Luo postgresql-tietokanta:
 
 `$ createdb`
 
-Käynnistä tietokanta ja aseta se käynnistymään automaattisesti.
+K辰ynnist辰 tietokanta ja aseta se k辰ynnistym辰辰n automaattisesti.
 
 `# rcctl start postgresql`
 
 `# rcctl enable postgresql`
 
-Luo käyttäjä pleromaa varten (kysyy muutaman kysymyksen):
+Luo k辰ytt辰j辰 pleromaa varten (kysyy muutaman kysymyksen):
 
 `# adduser pleroma`
 
-Vaihda pleroma-käyttäjään ja mene kotihakemistoosi:
+Vaihda pleroma-k辰ytt辰j辰辰n ja mene kotihakemistoosi:
 
 `# su - pleroma`
 
-Lataa pleroman lähdekoodi:
+Lataa pleroman l辰hdekoodi:
 
 `$ git clone -b stable https://git.pleroma.social/pleroma/pleroma.git`
 
@@ -66,22 +66,22 @@ Aja luodut tietokantakomennot:
 
 `$ MIX_ENV=prod mix ecto.migrate`
 
-Käynnistä pleroma-prosessi:
+K辰ynnist辰 pleroma-prosessi:
 
 `$ MIX_ENV=prod mix compile`
 
 `$ MIX_ENV=prod mix phx.server`
 
-Tässä vaiheessa on hyvä tarkistaa että asetukset ovat oikein. Avaa selaimella,
-curlilla tai vastaavalla työkalulla `esimerkki.com:4000/api/v1/instance` ja katso
-että kohta "uri" on "https://esimerkki.com".
+T辰ss辰 vaiheessa on hyv辰 tarkistaa ett辰 asetukset ovat oikein. Avaa selaimella,
+curlilla tai vastaavalla ty旦kalulla `esimerkki.com:4000/api/v1/instance` ja katso
+ett辰 kohta "uri" on "https://esimerkki.com".
 
-Huom! Muista varmistaa että muuttuja MIX_ENV on "prod" mix-komentoja ajaessasi.
+Huom! Muista varmistaa ett辰 muuttuja MIX_ENV on "prod" mix-komentoja ajaessasi.
 Mix lukee oikean konfiguraatiotiedoston sen mukaisesti.
 
-Ohessa enimmäkseen toimivaksi todettu rc.d-skripti pleroman käynnistämiseen.
-Kirjoita se tiedostoon /etc/rc.d/pleroma. Tämän jälkeen aja
-`# chmod +x /etc/rc.d/pleroma`, ja voit käynnistää pleroman komennolla
+Ohessa enimm辰kseen toimivaksi todettu rc.d-skripti pleroman k辰ynnist辰miseen.
+Kirjoita se tiedostoon /etc/rc.d/pleroma. T辰m辰n j辰lkeen aja
+`# chmod +x /etc/rc.d/pleroma`, ja voit k辰ynnist辰辰 pleroman komennolla
 `# /etc/rc.d/pleroma start`.
 
 ```
@@ -101,10 +101,10 @@ pexp="beam"
 rc_cmd $1
 ```
 
-Tämän jälkeen tarvitset enää HTTP-serverin välittämään kutsut pleroma-prosessille.
-Tiedostosta `install/pleroma.nginx` löytyy esimerkkikonfiguraatio, ja TLS-sertifikaatit
-saat ilmaiseksi esimerkiksi [letsencryptiltä](https://certbot.eff.org/lets-encrypt/opbsd-nginx.html).
+T辰m辰n j辰lkeen tarvitset en辰辰 HTTP-serverin v辰litt辰m辰辰n kutsut pleroma-prosessille.
+Tiedostosta `install/pleroma.nginx` l旦ytyy esimerkkikonfiguraatio, ja TLS-sertifikaatit
+saat ilmaiseksi esimerkiksi [letsencryptilt辰](https://certbot.eff.org/lets-encrypt/opbsd-nginx.html).
 Nginx asentuu yksinkertaisesti komennolla `# pkg_add nginx`.
 
-Kun olet valmis, avaa https://esimerkki.com selaimessasi. Luo käyttäjä ja seuraa kiinnostavia
-tyyppejä muilla palvelimilla!
+Kun olet valmis, avaa https://esimerkki.com selaimessasi. Luo k辰ytt辰j辰 ja seuraa kiinnostavia
+tyyppej辰 muilla palvelimilla!

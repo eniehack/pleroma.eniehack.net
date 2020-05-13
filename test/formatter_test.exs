@@ -1,5 +1,5 @@
 # Pleroma: A lightweight social networking server
-# Copyright © 2017-2020 Pleroma Authors <https://pleroma.social/>
+# Copyright 息 2017-2020 Pleroma Authors <https://pleroma.social/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.FormatterTest do
@@ -263,7 +263,7 @@ defmodule Pleroma.FormatterTest do
 
   describe ".parse_tags" do
     test "parses tags in the text" do
-      text = "Here's a #Test. Maybe these are #working or not. What about #漢字? And #は｡"
+      text = "Here's a #Test. Maybe these are #working or not. What about #羲√? And #は。"
 
       expected_tags = [
         {"#Test", "test"},
